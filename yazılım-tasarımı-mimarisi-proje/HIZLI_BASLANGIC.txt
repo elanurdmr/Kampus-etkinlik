@@ -1,0 +1,140 @@
+═══════════════════════════════════════════════════════════
+   AKADEMIK TAKVIM VE QR SISTEM - HIZLI BAŞLANGIÇ
+═══════════════════════════════════════════════════════════
+
+📌 ÖNEMLİ: İlk kurulumdan önce okuyun!
+
+════════════════════════════════════════════════════════════
+1. MYSQL KURULUMU
+════════════════════════════════════════════════════════════
+
+MySQL'i başlatın ve aşağıdaki komutu çalıştırın:
+
+    mysql -u root -p < database/create_database.sql
+
+Veya MySQL Workbench ile create_database.sql dosyasını çalıştırın.
+
+
+════════════════════════════════════════════════════════════
+2. ENVIRONMENT AYARLARI
+════════════════════════════════════════════════════════════
+
+backend klasöründe .env dosyası oluşturun:
+
+    DATABASE_URL=mysql+pymysql://root:YOUR_PASSWORD@localhost:3306/akademik_sistem
+
+YOUR_PASSWORD kısmını kendi MySQL şifrenizle değiştirin!
+
+
+════════════════════════════════════════════════════════════
+3. SISTEMI BAŞLATMA
+════════════════════════════════════════════════════════════
+
+ADIM 1: Backend'i Başlat
+------------------------
+start_backend.bat dosyasını çift tıklayın
+
+VEYA manuel olarak:
+    venv\Scripts\activate
+    cd backend\app
+    python main.py
+
+Backend adresi: http://localhost:8000
+
+
+ADIM 2: Frontend'i Başlat  
+------------------------
+Yeni bir terminal açın ve start_frontend.bat dosyasını çalıştırın
+
+VEYA manuel olarak:
+    cd frontend
+    php -S localhost:8080
+
+Frontend adresi: http://localhost:8080
+
+
+════════════════════════════════════════════════════════════
+4. SİSTEM TESTİ
+════════════════════════════════════════════════════════════
+
+Backend'in çalıştığını test edin:
+    test_sistem.bat çalıştırın
+
+Veya tarayıcıda http://localhost:8000 adresine gidin
+
+
+════════════════════════════════════════════════════════════
+5. KULLANIM
+════════════════════════════════════════════════════════════
+
+Frontend ana sayfa: http://localhost:8080
+
+Sayfalar:
+  - Ana Sayfa (index.php)      : Yaklaşan etkinlikler ve geri sayım
+  - Takvim (calendar.php)      : Tüm etkinlikleri görüntüle
+  - QR Okut (qr-scan.php)      : Etkinliğe QR ile katıl
+  - Yönetim (admin.php)        : Etkinlik ve QR yönetimi
+
+
+════════════════════════════════════════════════════════════
+6. İLK ADIMLAR
+════════════════════════════════════════════════════════════
+
+1. Yönetim sayfasına git (admin.php)
+2. Yeni bir etkinlik oluştur
+3. Etkinlik için QR kod oluştur
+4. QR Okut sayfasından QR kodu test et
+5. Ana sayfada geri sayımı kontrol et
+
+
+════════════════════════════════════════════════════════════
+🔧 SORUN GİDERME
+════════════════════════════════════════════════════════════
+
+❌ "No module named 'fastapi'" hatası
+   Çözüm: pip install -r requirements.txt
+
+❌ MySQL bağlantı hatası
+   Çözüm: 
+   - MySQL servisinin çalıştığını kontrol edin
+   - .env dosyasındaki şifreyi kontrol edin
+   - akademik_sistem veritabanının oluşturulduğunu kontrol edin
+
+❌ Backend başlamıyor
+   Çözüm:
+   - Virtual environment aktif mi kontrol edin
+   - Port 8000 kullanımda mı kontrol edin
+
+❌ Frontend açılmıyor
+   Çözüm:
+   - PHP kurulu mu kontrol edin (php -v)
+   - Port 8080 kullanımda mı kontrol edin
+
+
+════════════════════════════════════════════════════════════
+📚 DÖKÜMAN DOSYALARI
+════════════════════════════════════════════════════════════
+
+README.md           : Genel proje bilgileri
+KURULUM.md          : Detaylı kurulum rehberi
+PROJE_BILGILERI.md  : Teknik detaylar ve mimari
+
+
+════════════════════════════════════════════════════════════
+✨ ÖZELLİKLER
+════════════════════════════════════════════════════════════
+
+✅ Akademik takvim yönetimi
+✅ Gerçek zamanlı geri sayım
+✅ Otomatik pop-up bildirimleri
+✅ QR kod ile katılım sistemi
+✅ Katılımcı takibi
+✅ Responsive tasarım
+
+
+════════════════════════════════════════════════════════════
+
+İyi Çalışmalar! 🎓
+
+════════════════════════════════════════════════════════════
+
