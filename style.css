@@ -271,3 +271,51 @@ body {
   padding-top: 15px;
   font-size: 13px;
 }
+.takvim-container {
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.takvim-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.takvim-table th {
+  background: #b30000;
+  color: white;
+  padding: 12px;
+}
+
+.takvim-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.takvim-table tr:hover {
+  background: #f5f5f5;
+}
+.menu .login-btn,
+.menu .signup-btn,
+.menu .logout-btn,
+.menu .profile-btn {
+  margin-left: 10px;
+  background-color: #fff;
+  color: #c00;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.menu .login-btn:hover,
+.menu .signup-btn:hover {
+  background-color: #c00;
+  color: #fff;
+}

@@ -1,4 +1,5 @@
 <?php include "db.php"; ?>
+<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -9,14 +10,31 @@
 </head>
 <body>
 
+<?php
+  // Aktif sayfa ismini tespit ediyoruz
+  $currentPage = basename($_SERVER['PHP_SELF']);
+?>
+
 <header class="topbar">
   <h1>Kampüs Etkinlik Takip Sistemi</h1>
   <nav class="menu">
-    <a href="index.php">Ana Sayfa</a>
-    <a href="etkinlikler.php" class="active">Etkinlikler</a>
-    <a href="#">Takvim</a>
+    <a href="/kampus-etkinlik-1/index.php" class="<?= $currentPage == 'index.php' ? 'active' : '' ?>">Ana Sayfa</a>
+    <a href="/kampus-etkinlik-1/etkinlikler.php" class="<?= $currentPage == 'etkinlikler.php' ? 'active' : '' ?>">Etkinlikler</a>
+    <a href="/kampus-etkinlik-1/takvim.php" class="<?= $currentPage == 'takvim.php' ? 'active' : '' ?>">Akademik Takvim</a>
+
+    <!-- Kullanıcı oturumu yoksa -->
+    <?php if (!isset($_SESSION['user_id'])): ?>
+      <a href="/kampus-etkinlik-1/login.php" class="login-btn">Giriş Yap</a>
+      <a href="/kampus-etkinlik-1/signup.php" class="signup-btn">Kayıt Ol</a>
+    <?php else: ?>
+      <!-- Giriş yaptıysa -->
+      <a href="/kampus-etkinlik-1/profile.php" class="profile-btn">Profilim</a>
+      <a href="/kampus-etkinlik-1/logout.php" class="logout-btn">Çıkış Yap</a>
+    <?php endif; ?>
   </nav>
 </header>
+
+
 
 <main class="etkinlikler">
   <div class="event-card">
