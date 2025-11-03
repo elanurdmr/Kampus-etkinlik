@@ -319,3 +319,61 @@ body {
   background-color: #c00;
   color: #fff;
 }
+.duyurular {
+  padding: 60px 0;
+  background-color: #f8f8f8;
+  text-align: center;
+}
+
+.duyurular h2 {
+  color: #b00000;
+  margin-bottom: 40px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* kutucuk düzeni */
+.duyuru-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.duyuru-card {
+  background: #fff;
+  border-radius: 12px;
+  width: 300px;
+  padding: 25px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.duyuru-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.duyuru-card h3 {
+  color: #b00000;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.duyuru-card p {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.duyuru-tarih {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}

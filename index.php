@@ -59,23 +59,35 @@
   <button id='nextBtn' class='nav-btn'>&#10095;</button>
 </section>
 
+<?php
+include "db.php";
+
+$sql = "SELECT * FROM duyurular ORDER BY tarih DESC";
+$result = $conn->query($sql);
+?>
+
 <section class="duyurular">
   <h2>Duyurular</h2>
-  <div class="duyuru-listesi">
-    <div class="duyuru">
-      <h3>Kütüphane Çalışma Saatleri Güncellendi</h3>
-      <p>Yeni saatler: 09.00 - 22.00 | Hafta sonu: 10.00 - 18.00</p>
-    </div>
-    <div class="duyuru">
-      <h3>Yazılım Kulübü Hackathon Başvuruları Başladı</h3>
-      <p>Son başvuru: 15 Kasım 2025. Kazanan ekibe ödül!</p>
-    </div>
-    <div class="duyuru">
-      <h3>Psikoloji Kulübü Söyleşi Etkinliği</h3>
-      <p>20 Kasım 2025, D Blok Konferans Salonu. Konuk: Dr. Elif Yıldırım.</p>
-    </div>
+  <div class="duyuru-grid">
+    <?php
+    if ($result && $result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+        ?>
+        <div class="duyuru-card">
+          <h3><?= htmlspecialchars($row["baslik"]) ?></h3>
+          <p><?= htmlspecialchars($row["icerik"]) ?></p>
+          <span class="duyuru-tarih"><?= htmlspecialchars($row["tarih"]) ?></span>
+        </div>
+        <?php
+      }
+    } else {
+      echo "<p>Henüz duyuru bulunmamaktadır.</p>";
+    }
+    ?>
   </div>
 </section>
+
+
 
 <footer class="footer-bottom">
   <p>© 2025 Kampüs Etkinlik Takip Sistemi </p>
