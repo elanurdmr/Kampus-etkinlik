@@ -30,11 +30,51 @@ YOUR_PASSWORD kısmını kendi MySQL şifrenizle değiştirin!
 3. SISTEMI BAŞLATMA
 ════════════════════════════════════════════════════════════
 
+⭐ YENİ KURULUM: ÖNERİLEN YOL (XAMPP + Backend)
+------------------------------------------------
+1. XAMPP Control Panel'i açın
+2. Apache ve MySQL servislerini başlatın
+3. Terminal açın ve şu komutu çalıştırın:
+
+Mac/Linux için:
+    cd "/Applications/XAMPP/xamppfiles/htdocs/yazılım-tasarımı-mimarisi-proje/backend/app"
+    source ../../venv/bin/activate
+    python main.py
+
+Windows için:
+    cd "C:\xampp\htdocs\yazılım-tasarımı-mimarisi-proje\backend\app"
+    ..\..\venv\Scripts\activate
+    python main.py
+
+✅ Backend: http://localhost:8000
+✅ Frontend: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+
+🎯 ALTERNATİF: Otomatik Başlatma (Her İkisini Birden)
+-----------------------------------------------------
+Windows için:
+    start_all.bat dosyasını çift tıklayın
+
+Mac/Linux için:
+    ./start_all.sh
+
+Bu komut hem Backend'i hem Frontend'i otomatik olarak 
+ayrı terminal pencerelerinde başlatacaktır!
+
+
+📌 MANUEL YOL: Ayrı Ayrı Başlat
+--------------------------------
 ADIM 1: Backend'i Başlat
 ------------------------
 start_backend.bat dosyasını çift tıklayın
 
 VEYA manuel olarak:
+Mac:
+    cd backend/app
+    source ../../venv/bin/activate
+    python main.py
+
+Windows:
     venv\Scripts\activate
     cd backend\app
     python main.py
@@ -42,15 +82,18 @@ VEYA manuel olarak:
 Backend adresi: http://localhost:8000
 
 
-ADIM 2: Frontend'i Başlat  
-------------------------
-Yeni bir terminal açın ve start_frontend.bat dosyasını çalıştırın
+ADIM 2: Frontend için XAMPP Kullan (ÖNERİLEN)
+---------------------------------------------
+- XAMPP Control Panel'den Apache'yi başlatın
+- Frontend otomatik çalışır: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
 
-VEYA manuel olarak:
-    cd frontend
-    php -S localhost:8080
 
-Frontend adresi: http://localhost:8080
+⚠️  ÖNEMLİ NOTLAR:
+------------------
+✓ Backend ve Frontend'in AYNI ANDA çalışması gerekir!
+✓ XAMPP kullanıyorsanız Frontend için ayrı komut gerekmez
+✓ Backend her zaman Port 8000'de çalışmalıdır
+✓ Frontend XAMPP ile Port 80'de çalışır
 
 
 ════════════════════════════════════════════════════════════
@@ -67,24 +110,53 @@ Veya tarayıcıda http://localhost:8000 adresine gidin
 5. KULLANIM
 ════════════════════════════════════════════════════════════
 
-Frontend ana sayfa: http://localhost:8080
+Frontend ana sayfa: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
 
-Sayfalar:
-  - Ana Sayfa (index.php)      : Yaklaşan etkinlikler ve geri sayım
-  - Takvim (calendar.php)      : Tüm etkinlikleri görüntüle
-  - QR Okut (qr-scan.php)      : Etkinliğe QR ile katıl
-  - Yönetim (admin.php)        : Etkinlik ve QR yönetimi
+🌐 Sayfalar:
+  - Ana Sayfa (index.php)                  : Genel bilgiler ve dersler
+  - Etkinlikler (etkinlikler.php)          : Statik etkinlik listesi
+  - Eski Takvim (takvim.php)               : Veritabanından statik takvim
+  - 📅 Akademik Takvim (akademik-takvim.php) : Backend API ile dinamik takvim
+  - ➕ Etkinlik Yönetimi (etkinlik-yonetim.php) : Yeni etkinlik ekle (API)
+
+🔌 Backend API:
+  - API Ana Sayfa: http://localhost:8000
+  - API Docs (Swagger): http://localhost:8000/docs
+  - Etkinlik Listesi: http://localhost:8000/api/calendar/etkinlikler
+  - QR Sistem: http://localhost:8000/api/qr
 
 
 ════════════════════════════════════════════════════════════
-6. İLK ADIMLAR
+6. İLK ADIMLAR - SİSTEMİ TEST EDIN
 ════════════════════════════════════════════════════════════
 
-1. Yönetim sayfasına git (admin.php)
-2. Yeni bir etkinlik oluştur
-3. Etkinlik için QR kod oluştur
-4. QR Okut sayfasından QR kodu test et
-5. Ana sayfada geri sayımı kontrol et
+1️⃣  XAMPP'i başlatın (Apache + MySQL)
+
+2️⃣  Backend'i başlatın:
+    cd backend/app
+    source ../../venv/bin/activate  (Mac/Linux)
+    python main.py
+
+3️⃣  Backend'in çalıştığını kontrol edin:
+    Tarayıcıda: http://localhost:8000
+    Swagger API Docs: http://localhost:8000/docs
+
+4️⃣  Frontend'e giriş yapın:
+    Ana Sayfa: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+5️⃣  Etkinlik Ekleyin:
+    - "Etkinlik Yönetimi" menüsüne tıklayın
+    - Formu doldurun (başlık, tür, tarih, vb.)
+    - "Etkinlik Ekle" butonuna tıklayın
+
+6️⃣  Etkinlikleri Görüntüleyin:
+    - "Akademik Takvim (API)" menüsüne tıklayın
+    - Eklediğiniz etkinlikleri görün
+    - Filtreleme butonlarını deneyin
+
+7️⃣  API'yi Test Edin:
+    - http://localhost:8000/docs adresine gidin
+    - "Try it out" ile endpoint'leri test edin
 
 
 ════════════════════════════════════════════════════════════
