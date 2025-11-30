@@ -23,7 +23,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <a href="index.php">Ana Sayfa</a>
     <a href="etkinlikler.php">Etkinlikler</a>
-    <a href="takvim.php">Akademik Takvim</a>
     <a href="akademik-takvim.php">Akademik Takvim (API)</a>
+    <a href="kulup-oneri.php">KULÜP ETKİNLİK ÖNERİ SİSTEMİ</a> <!-- yapay zeka kısımı -->
+    <a href="puan-sistemi.php">PUAN & ROZET SİSTEMİ</a>
+    <a href="kutuphane.php">KÜTÜPHANE REZERVASYONU</a>
+    <a href="#">ARKADAŞ EKLEME</a>
+    <a href="qr-etkinlik.php">QR İLE ETKİNLİK ONAYI</a>
+    <a href="randevu.php">ÖĞRETİM ÜYESİ RANDEVU</a>
     <a href="etkinlik-yonetim.php">Etkinlik Yönetimi</a>
 </div>
+<script src="script.js"></script>
+
