@@ -1,0 +1,212 @@
+═══════════════════════════════════════════════════════════
+   AKADEMIK TAKVIM VE QR SISTEM - HIZLI BAŞLANGIÇ
+═══════════════════════════════════════════════════════════
+
+📌 ÖNEMLİ: İlk kurulumdan önce okuyun!
+
+════════════════════════════════════════════════════════════
+1. MYSQL KURULUMU
+════════════════════════════════════════════════════════════
+
+MySQL'i başlatın ve aşağıdaki komutu çalıştırın:
+
+    mysql -u root -p < database/create_database.sql
+
+Veya MySQL Workbench ile create_database.sql dosyasını çalıştırın.
+
+
+════════════════════════════════════════════════════════════
+2. ENVIRONMENT AYARLARI
+════════════════════════════════════════════════════════════
+
+backend klasöründe .env dosyası oluşturun:
+
+    DATABASE_URL=mysql+pymysql://root:YOUR_PASSWORD@localhost:3306/akademik_sistem
+
+YOUR_PASSWORD kısmını kendi MySQL şifrenizle değiştirin!
+
+
+════════════════════════════════════════════════════════════
+3. SISTEMI BAŞLATMA
+════════════════════════════════════════════════════════════
+
+⭐ YENİ KURULUM: ÖNERİLEN YOL (XAMPP + Backend)
+------------------------------------------------
+1. XAMPP Control Panel'i açın
+2. Apache ve MySQL servislerini başlatın
+3. Terminal açın ve şu komutu çalıştırın:
+
+Mac/Linux için:
+    cd "/Applications/XAMPP/xamppfiles/htdocs/yazılım-tasarımı-mimarisi-proje/backend/app"
+    source ../../venv/bin/activate
+    python main.py
+
+Windows için:
+    cd "C:\xampp\htdocs\yazılım-tasarımı-mimarisi-proje\backend\app"
+    ..\..\venv\Scripts\activate
+    python main.py
+
+✅ Backend: http://localhost:8000
+✅ Frontend: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+
+🎯 ALTERNATİF: Otomatik Başlatma (Her İkisini Birden)
+-----------------------------------------------------
+Windows için:
+    start_all.bat dosyasını çift tıklayın
+
+Mac/Linux için:
+    ./start_all.sh
+
+Bu komut hem Backend'i hem Frontend'i otomatik olarak 
+ayrı terminal pencerelerinde başlatacaktır!
+
+
+📌 MANUEL YOL: Ayrı Ayrı Başlat
+--------------------------------
+ADIM 1: Backend'i Başlat
+------------------------
+start_backend.bat dosyasını çift tıklayın
+
+VEYA manuel olarak:
+Mac:
+    cd backend/app
+    source ../../venv/bin/activate
+    python main.py
+
+Windows:
+    venv\Scripts\activate
+    cd backend\app
+    python main.py
+
+Backend adresi: http://localhost:8000
+
+
+ADIM 2: Frontend için XAMPP Kullan (ÖNERİLEN)
+---------------------------------------------
+- XAMPP Control Panel'den Apache'yi başlatın
+- Frontend otomatik çalışır: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+
+⚠️  ÖNEMLİ NOTLAR:
+------------------
+✓ Backend ve Frontend'in AYNI ANDA çalışması gerekir!
+✓ XAMPP kullanıyorsanız Frontend için ayrı komut gerekmez
+✓ Backend her zaman Port 8000'de çalışmalıdır
+✓ Frontend XAMPP ile Port 80'de çalışır
+
+
+════════════════════════════════════════════════════════════
+4. SİSTEM TESTİ
+════════════════════════════════════════════════════════════
+
+Backend'in çalıştığını test edin:
+    test_sistem.bat çalıştırın
+
+Veya tarayıcıda http://localhost:8000 adresine gidin
+
+
+════════════════════════════════════════════════════════════
+5. KULLANIM
+════════════════════════════════════════════════════════════
+
+Frontend ana sayfa: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+🌐 Sayfalar:
+  - Ana Sayfa (index.php)                  : Genel bilgiler ve dersler
+  - Etkinlikler (etkinlikler.php)          : Statik etkinlik listesi
+  - Eski Takvim (takvim.php)               : Veritabanından statik takvim
+  - 📅 Akademik Takvim (akademik-takvim.php) : Backend API ile dinamik takvim
+  - ➕ Etkinlik Yönetimi (etkinlik-yonetim.php) : Yeni etkinlik ekle (API)
+
+🔌 Backend API:
+  - API Ana Sayfa: http://localhost:8000
+  - API Docs (Swagger): http://localhost:8000/docs
+  - Etkinlik Listesi: http://localhost:8000/api/calendar/etkinlikler
+  - QR Sistem: http://localhost:8000/api/qr
+
+
+════════════════════════════════════════════════════════════
+6. İLK ADIMLAR - SİSTEMİ TEST EDIN
+════════════════════════════════════════════════════════════
+
+1️⃣  XAMPP'i başlatın (Apache + MySQL)
+
+2️⃣  Backend'i başlatın:
+    cd backend/app
+    source ../../venv/bin/activate  (Mac/Linux)
+    python main.py
+
+3️⃣  Backend'in çalıştığını kontrol edin:
+    Tarayıcıda: http://localhost:8000
+    Swagger API Docs: http://localhost:8000/docs
+
+4️⃣  Frontend'e giriş yapın:
+    Ana Sayfa: http://localhost/yazılım-tasarımı-mimarisi-proje/frontend/
+
+5️⃣  Etkinlik Ekleyin:
+    - "Etkinlik Yönetimi" menüsüne tıklayın
+    - Formu doldurun (başlık, tür, tarih, vb.)
+    - "Etkinlik Ekle" butonuna tıklayın
+
+6️⃣  Etkinlikleri Görüntüleyin:
+    - "Akademik Takvim (API)" menüsüne tıklayın
+    - Eklediğiniz etkinlikleri görün
+    - Filtreleme butonlarını deneyin
+
+7️⃣  API'yi Test Edin:
+    - http://localhost:8000/docs adresine gidin
+    - "Try it out" ile endpoint'leri test edin
+
+
+════════════════════════════════════════════════════════════
+🔧 SORUN GİDERME
+════════════════════════════════════════════════════════════
+
+❌ "No module named 'fastapi'" hatası
+   Çözüm: pip install -r requirements.txt
+
+❌ MySQL bağlantı hatası
+   Çözüm: 
+   - MySQL servisinin çalıştığını kontrol edin
+   - .env dosyasındaki şifreyi kontrol edin
+   - akademik_sistem veritabanının oluşturulduğunu kontrol edin
+
+❌ Backend başlamıyor
+   Çözüm:
+   - Virtual environment aktif mi kontrol edin
+   - Port 8000 kullanımda mı kontrol edin
+
+❌ Frontend açılmıyor
+   Çözüm:
+   - PHP kurulu mu kontrol edin (php -v)
+   - Port 8080 kullanımda mı kontrol edin
+
+
+════════════════════════════════════════════════════════════
+📚 DÖKÜMAN DOSYALARI
+════════════════════════════════════════════════════════════
+
+README.md           : Genel proje bilgileri
+KURULUM.md          : Detaylı kurulum rehberi
+PROJE_BILGILERI.md  : Teknik detaylar ve mimari
+
+
+════════════════════════════════════════════════════════════
+✨ ÖZELLİKLER
+════════════════════════════════════════════════════════════
+
+✅ Akademik takvim yönetimi
+✅ Gerçek zamanlı geri sayım
+✅ Otomatik pop-up bildirimleri
+✅ QR kod ile katılım sistemi
+✅ Katılımcı takibi
+✅ Responsive tasarım
+
+
+════════════════════════════════════════════════════════════
+
+İyi Çalışmalar! 🎓
+
+════════════════════════════════════════════════════════════
+
