@@ -5,110 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Etkinlik Yönetimi | Kampüs Sistemi</title>
+
+  <!-- Style -->
   <link rel="stylesheet" href="style.css">
-  <style>
-    .yonetim-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-    .form-card {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #333;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    .submit-btn {
-      background: #2196F3;
-      color: white;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-    }
-    .submit-btn:hover {
-      background: #1976D2;
-    }
-    .success-message {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      display: none;
-    }
-    .error-message {
-      background: #ffebee;
-      color: #c62828;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      display: none;
-    }
-    .api-status {
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .api-online {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-    .api-offline {
-      background: #ffebee;
-      color: #c62828;
-    }
-    .form-hint {
-      font-size: 12px;
-      color: #999;
-      margin-top: 5px;
-    }
-  </style>
 </head>
 <body>
-
-<?php
-  $currentPage = basename($_SERVER['PHP_SELF']);
-?>
 
 <?php include "header.php"; ?>
 
 
 <div class="yonetim-container">
   <h2>➕ Yeni Etkinlik Ekle</h2>
-  <p style="color: #666; margin-bottom: 20px;">Backend API'ye yeni etkinlik ekleyin: <code>http://localhost:8010/api/calendar/etkinlik</code></p>
+  <p style="color: #666; margin-bottom: 20px;">Backend API'ye yeni etkinlik ekleyin: 
+    <code>http://localhost:8010/api/calendar/etkinlik</code>
+  </p>
 
-  <div id="api-status" class="api-status">
-    <span>⏳ API durumu kontrol ediliyor...</span>
-  </div>
+  <div id="api-status" class="api-status">⏳ API durumu kontrol ediliyor...</div>
 
   <div id="success-message" class="success-message"></div>
   <div id="error-message" class="error-message"></div>
@@ -134,145 +46,108 @@
 
       <div class="form-group">
         <label for="aciklama">📄 Açıklama</label>
-        <textarea id="aciklama" name="aciklama" placeholder="Etkinlik hakkında detaylı bilgi..."></textarea>
+        <textarea id="aciklama" name="aciklama"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="baslangic_tarihi">📅 Başlangıç Tarihi ve Saati *</label>
+        <label for="baslangic_tarihi">📅 Başlangıç Tarihi *</label>
         <input type="datetime-local" id="baslangic_tarihi" name="baslangic_tarihi" required>
-        <div class="form-hint">Etkinliğin başlayacağı tarih ve saat</div>
       </div>
 
       <div class="form-group">
-        <label for="bitis_tarihi">📅 Bitiş Tarihi ve Saati</label>
+        <label for="bitis_tarihi">📅 Bitiş Tarihi</label>
         <input type="datetime-local" id="bitis_tarihi" name="bitis_tarihi">
-        <div class="form-hint">Opsiyonel - Etkinliğin biteceği tarih ve saat</div>
       </div>
 
       <div class="form-group">
         <label for="konum">📍 Konum</label>
-        <input type="text" id="konum" name="konum" placeholder="Örn: A Blok Konferans Salonu">
+        <input type="text" id="konum" name="konum">
       </div>
 
-      <button type="submit" class="submit-btn">✅ Etkinlik Ekle</button>
+      <button type="submit" class="submit-btn">Etkinlik Ekle</button>
     </form>
   </div>
 
   <div style="margin-top: 20px; text-align: center;">
-    <a href="akademik-takvim.php" style="color: #2196F3; text-decoration: none; font-weight: bold;">
-      ← Akademik Takvime Dön
-    </a>
+    <a href="akademik-takvim.php" class="geri-link">← Akademik Takvime Dön</a>
   </div>
 </div>
 
+
 <?php include "footer.php"; ?>
 
-<script>
-const API_URL = 'http://localhost:8010/api/calendar';
+<script src="script.js"></script>
 
-// Sayfa yüklendiğinde API durumunu kontrol et
-document.addEventListener('DOMContentLoaded', function() {
+<script>
+const API_URL = "http://localhost:8010/api/calendar";
+
+document.addEventListener("DOMContentLoaded", () => {
   checkAPIStatus();
   setupForm();
 });
 
-// API durumunu kontrol et
 async function checkAPIStatus() {
-  const statusDiv = document.getElementById('api-status');
-  
+  const statusDiv = document.getElementById("api-status");
+
   try {
-    const response = await fetch('http://localhost:8010/');
-    
-    if (response.ok) {
-      statusDiv.className = 'api-status api-online';
-      statusDiv.innerHTML = '✅ Backend API çalışıyor';
-    } else {
-      throw new Error('API yanıt vermiyor');
-    }
-  } catch (error) {
-    statusDiv.className = 'api-status api-offline';
-    statusDiv.innerHTML = '❌ Backend API çalışmıyor - Lütfen Backend\'i başlatın';
+    const res = await fetch("http://localhost:8010/");
+    if (res.ok) {
+      statusDiv.className = "api-status api-online";
+      statusDiv.innerHTML = "✅ Backend API çalışıyor";
+    } else throw new Error();
+  } catch (e) {
+    statusDiv.className = "api-status api-offline";
+    statusDiv.innerHTML = "❌ Backend API çalışmıyor";
   }
 }
 
-// Form işlemlerini ayarla
 function setupForm() {
-  const form = document.getElementById('etkinlik-form');
-  
-  form.addEventListener('submit', async function(e) {
+  const form = document.getElementById("etkinlik-form");
+
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    
-    const formData = {
-      baslik: document.getElementById('baslik').value,
-      etkinlik_turu: document.getElementById('etkinlik_turu').value,
-      aciklama: document.getElementById('aciklama').value || null,
-      baslangic_tarihi: document.getElementById('baslangic_tarihi').value,
-      bitis_tarihi: document.getElementById('bitis_tarihi').value || null,
-      konum: document.getElementById('konum').value || null
+
+    const data = {
+      baslik: baslik.value,
+      etkinlik_turu: etkinlik_turu.value,
+      aciklama: aciklama.value,
+      baslangic_tarihi: baslangic_tarihi.value,
+      bitis_tarihi: bitis_tarihi.value,
+      konum: konum.value
     };
-    
-    await submitEtkinlik(formData);
+
+    await submitEtkinlik(data);
   });
 }
 
-// Etkinliği Backend API'ye gönder
 async function submitEtkinlik(data) {
-  const successDiv = document.getElementById('success-message');
-  const errorDiv = document.getElementById('error-message');
-  const submitBtn = document.querySelector('.submit-btn');
-  
-  // Mesajları temizle
-  successDiv.style.display = 'none';
-  errorDiv.style.display = 'none';
-  
-  // Butonu devre dışı bırak
-  submitBtn.disabled = true;
-  submitBtn.textContent = '⏳ Gönderiliyor...';
-  
+  const success = document.getElementById("success-message");
+  const error = document.getElementById("error-message");
+
+  success.style.display = "none";
+  error.style.display = "none";
+
   try {
-    const response = await fetch(`${API_URL}/etkinlik`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const res = await fetch(API_URL + "/etkinlik", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    
-    const result = await response.json();
-    
-    if (response.ok) {
-      // Başarılı
-      successDiv.style.display = 'block';
-      successDiv.innerHTML = `
-        <strong>✅ Başarılı!</strong><br>
-        Etkinlik başarıyla eklendi: <strong>${result.baslik}</strong><br>
-        <small>ID: ${result.id}</small>
-      `;
-      
-      // Formu temizle
-      document.getElementById('etkinlik-form').reset();
-      
-      // 3 saniye sonra akademik takvim sayfasına yönlendir
-      setTimeout(() => {
-        window.location.href = 'akademik-takvim.php';
-      }, 2000);
-      
+
+    const result = await res.json();
+
+    if (res.ok) {
+      success.style.display = "block";
+      success.innerHTML = "🎉 Etkinlik başarıyla eklendi!";
     } else {
-      throw new Error(result.detail || 'Bir hata oluştu');
+      throw new Error(result.detail);
     }
-    
-  } catch (error) {
-    errorDiv.style.display = 'block';
-    errorDiv.innerHTML = `
-      <strong>❌ Hata!</strong><br>
-      ${error.message}<br>
-      <small>Backend API'nin çalıştığından emin olun.</small>
-    `;
-  } finally {
-    // Butonu tekrar aktif et
-    submitBtn.disabled = false;
-    submitBtn.textContent = '✅ Etkinlik Ekle';
+  } catch (err) {
+    error.style.display = "block";
+    error.innerHTML = "❌ Hata: " + err.message;
   }
 }
 </script>
-<script src="script.js"></script>
+
+</body>
+</html>
