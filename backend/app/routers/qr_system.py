@@ -186,4 +186,68 @@ def kullanici_olustur(kullanici: schemas.KullaniciCreate, db: Session = Depends(
     db.refresh(db_kullanici)
     
     return db_kullanici
+@router.post("/kayit-olustur")
+def kayit_olustur(data: dict, db: Session = Depends(get_db)):
+    """
+    Frontend popup formdan gelen kaydı alır:
+    - Ad
+    - Soyad
+    - Email
+    - Telefon
+    - Etkinlik Adı
+    """
+
+    # 1. Kullanıcı var mı?
+    kullanici = db.query(models.Kullanici).filter(
+        models.Kullanici.email == data["email"]
+    ).first()
+
+    if not kullanici:
+        # Yeni kullanıcı oluştur
+        kullanici = models.Kullanici(
+            ad=data["first_name"],
+            soyad=data["last_name"],
+            email=data["email"],
+            telefon=data["phone"],
+            ogrenci_no="000000",
+            sifre="1234"
+        )
+        db.add(kullanici)
+        db.commit()
+        db.refresh(kullanici)
+
+    # 2. Etkinliği bul
+    etkinlik = db.query(models.AkademikEtkinlik).filter(
+        models.AkademikEtkinlik.baslik == data["event_name"]
+    ).first()
+
+    if not etkinlik:
+        raise HTTPException(status_code=404, detail="Etkinlik bulunamadı")
+
+    # 3. QR kod oluştur
+    qr = models.QRKod(
+        etkinlik_id=etkinlik.id,
+        qr_kod=generate_qr_code(etkinlik.id, etkinlik.baslik),
+        gecerlilik_suresi=etkinlik.baslangic_tarihi
+    )
+    db.add(qr)
+    db.commit()
+    db.refresh(qr)
+
+    # 4. Katılım oluştur
+    katilim = models.Katilim(
+        kullanici_id=kullanici.id,
+        etkinlik_id=etkinlik.id,
+        qr_kod_id=qr.id,
+        onaylandi=True,
+        katilim_turu="form"
+    )
+    db.add(katilim)
+    db.commit()
+
+    return {
+        "status": "ok",
+        "mesaj": "Katılım başarıyla oluşturuldu!",
+        "qr_kod": qr.qr_kod
+    }
 
