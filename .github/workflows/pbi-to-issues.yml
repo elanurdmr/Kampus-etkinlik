@@ -2,9 +2,6 @@ name: Auto Generate PBI Issues and Add to Project
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   generate:
@@ -16,15 +13,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install GitHub CLI
+      # GH CLI manual install (BU KESİN ÇALIŞIR)
+      - name: Install GitHub CLI manually
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gh jq
+          curl -fsSL https://github.com/cli/cli/releases/latest/download/gh_2.63.0_linux_amd64.deb -o ghcli.deb
+          sudo dpkg -i ghcli.deb
+          sudo apt-get install -f -y
 
-      - name: Load JSON into file
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Load JSON rows
         run: jq -c '.[]' .github/pbi-list.json > rows.txt
 
-      - name: Create Issues + Add to Project
+      - name: Create Issues and add to project
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -39,7 +41,7 @@ jobs:
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue already exists, skipping."
+              echo "Issue exists → skipping"
               ISSUE_NUMBER=$EXIST
             else
               ISSUE_NUMBER=$(gh issue create \
