@@ -1,7 +1,7 @@
 name: Auto Generate PBI Issues and Add to Project
 
 on:
-  workflow_dispatch:  # Manuel tetikleme için
+  workflow_dispatch:
   push:
     paths:
       - ".github/pbi-list.json"
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI   # ← SENİN GERÇEK PROJECT ID’N
+      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI
 
     steps:
       - uses: actions/checkout@v3
@@ -19,42 +19,39 @@ jobs:
       - name: Install jq
         run: sudo apt-get install jq -y
 
-      - name: Load PBI list
-        id: load
+      - name: Load PBI list safely
         run: |
-          echo "LIST=$(jq -c '.[]' .github/pbi-list.json)" >> $GITHUB_ENV
+          jq -c '.[]' .github/pbi-list.json > pbi_items.txt
 
       - name: Create Issues + Add to Project
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for row in $LIST; do
-            ID=$(echo $row | jq -r '.id')
-            TITLE=$(echo $row | jq -r '.title')
-            DESC=$(echo $row | jq -r '.desc')
-            CAT=$(echo $row | jq -r '.cat')
+          while IFS= read -r row; do
+            ID=$(echo "$row" | jq -r '.id')
+            TITLE=$(echo "$row" | jq -r '.title')
+            DESC=$(echo "$row" | jq -r '.desc')
+            CAT=$(echo "$row" | jq -r '.cat')
 
-            # Issue zaten var mı?
+            echo "Processing PBI $ID - $TITLE"
+
+            # Zaten var mı kontrol et
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue PBI $ID zaten var, atlanıyor."
               ISSUE_NUMBER=$EXIST
             else
-              echo "Yeni issue oluşturuluyor: PBI $ID"
-              ISSUE_URL=$(gh issue create \
+              ISSUE_NUMBER=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
                 --label "priority-medium" \
-                --json url | jq -r '.url')
-
-              ISSUE_NUMBER=$(echo $ISSUE_URL | sed 's#.*/##')
+                --json number | jq -r '.number')
             fi
 
-            echo "Issue #$ISSUE_NUMBER → Project’e ekleniyor..."
-
             ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
+
+            echo "Adding Issue #$ISSUE_NUMBER to Project…"
 
             gh api graphql -f query='
               mutation($project:ID!, $content:ID!) {
@@ -67,4 +64,4 @@ jobs:
               }
             ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
 
-          done
+          done < pbi_items.txt
