@@ -3,30 +3,48 @@ name: Auto Generate PBI Issues and Add to Project
 on:
   workflow_dispatch:
 
+  pull_request:
+    types:
+      - closed   # Merge edildiğinde tetiklenmesi için
+
+  push:
+    branches:
+      - main     # Manuel push olursa yine tetikler
+
 jobs:
   generate:
+    # PR closed event geldiyse → sadece merged ise çalıştır
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI
+      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI   # Senin gerçek project ID’n
 
     steps:
       - uses: actions/checkout@v3
 
-      # GH CLI manual install (BU KESİN ÇALIŞIR)
-      - name: Install GitHub CLI manually
+      # Modern ve sorunsuz GH CLI kurulumu (apt-key hatası YOK)
+      - name: Install GitHub CLI
         run: |
-          curl -fsSL https://github.com/cli/cli/releases/latest/download/gh_2.63.0_linux_amd64.deb -o ghcli.deb
-          sudo dpkg -i ghcli.deb
-          sudo apt-get install -f -y
+          type -p curl >/dev/null || sudo apt install curl -y
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+            | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
 
       - name: Install jq
-        run: sudo apt-get install -y jq
+        run: sudo apt-get install jq -y
 
-      - name: Load JSON rows
-        run: jq -c '.[]' .github/pbi-list.json > rows.txt
+      - name: Load JSON into lines
+        run: jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
 
-      - name: Create Issues and add to project
+      - name: Create Issues + Add to Project
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -38,21 +56,26 @@ jobs:
 
             echo "Processing PBI $ID - $TITLE"
 
+            # Bu PBI daha önce oluşturulmuş mu?
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue exists → skipping"
+              echo "Issue PBI $ID already exists, skipping."
               ISSUE_NUMBER=$EXIST
             else
+              # Yeni issue oluştur
               ISSUE_NUMBER=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
+                --label "priority-medium" \
                 --json number | jq -r '.number')
             fi
 
+            # Node ID çek
             ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
 
+            # Projeye ekle
             gh api graphql -f query='
               mutation($project:ID!, $content:ID!) {
                 addProjectV2ItemById(input: {
@@ -64,4 +87,4 @@ jobs:
               }
             ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
 
-          done < rows.txt
+          done < pbi_rows.txt
