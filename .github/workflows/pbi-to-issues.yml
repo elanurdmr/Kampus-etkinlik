@@ -47,6 +47,23 @@ jobs:
       - name: Load JSON into lines
         run: jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
 
+      # ------------------------------------------------------------------
+      # GARANTİ ÇÖZÜM: Etiketleri En Başta Manuel Oluşturuyoruz
+      # Döngü içinde hata riskini sıfıra indirmek için buraya aldım.
+      # ------------------------------------------------------------------
+      - name: Create All Labels First
+        run: |
+          echo "Creating labels..."
+          # || true ekliyoruz ki "zaten var" derse hata verip durmasın
+          gh label create "backend" --color "5319e7" --force || true
+          gh label create "frontend" --color "1d76db" --force || true
+          gh label create "database" --color "0e8a16" --force || true
+          gh label create "test" --color "d93f0b" --force || true
+          gh label create "mobile" --color "fbca04" --force || true
+          gh label create "enhancement" --color "a2eeef" --force || true
+          gh label create "priority-medium" --color "fbca04" --force || true
+          echo "Labels created successfully."
+
       - name: Create Issues + Add to Project
         run: |
           while IFS= read -r row; do
@@ -55,13 +72,7 @@ jobs:
             DESC=$(echo "$row" | jq -r '.desc')
             CAT=$(echo "$row" | jq -r '.cat')
 
-            echo "Processing PBI $ID - $TITLE"
-
-            # ---------------------------------------------------------
-            # DÜZELTME 1: Etiket (Label) Kontrolü
-            # Eğer etiket yoksa hata vermemesi için oluşturuyoruz.
-            # ---------------------------------------------------------
-            gh label create "$CAT" --force >/dev/null 2>&1 || true
+            echo "Processing PBI $ID - $TITLE ($CAT)"
 
             # Kontrol: Bu PBI daha önce oluşturulmuş mu?
             EXIST=$(gh issue list --search "PBI $ID in:title" --json number | jq '.[0].number')
@@ -70,34 +81,37 @@ jobs:
               echo "Issue PBI $ID already exists (Issue #$EXIST), skipping creation."
               ISSUE_NUMBER=$EXIST
             else
-              # ---------------------------------------------------------
-              # DÜZELTME 2: Issue Oluşturma (--json kaldırıldı)
-              # ---------------------------------------------------------
+              # Issue Oluşturma
               CREATED_URL=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
                 --label "priority-medium")
               
-              # URL'den numarayı çekiyoruz (örn: .../issues/15 -> 15)
+              # URL'den numarayı çek
               ISSUE_NUMBER=$(echo "$CREATED_URL" | awk -F '/' '{print $NF}')
               
               echo "Created Issue #$ISSUE_NUMBER"
             fi
 
-            # Node ID Çekme
-            ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
+            # Node ID Çekme (Hata olursa script durmasın diye || true ekliyorum)
+            ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id') || true
 
-            # Projeye Ekleme
-            gh api graphql -f query='
-              mutation($project:ID!, $content:ID!) {
-                addProjectV2ItemById(input: {
-                  projectId: $project
-                  contentId: $content
-                }) {
-                  item { id }
-                }
-              }
-            ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
+            # Node ID boşsa projeye eklemeyi atla
+            if [ -z "$ISSUE_NODE" ]; then
+               echo "Could not get Node ID for issue $ISSUE_NUMBER, skipping project add."
+            else
+               # Projeye Ekleme
+               gh api graphql -f query='
+                 mutation($project:ID!, $content:ID!) {
+                   addProjectV2ItemById(input: {
+                     projectId: $project
+                     contentId: $content
+                   }) {
+                     item { id }
+                   }
+                 }
+               ' -f project=$PROJECT_ID -f content=$ISSUE_NODE || true
+            fi
 
           done < pbi_rows.txt
