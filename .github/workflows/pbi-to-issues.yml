@@ -16,12 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Update GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install -y gh
+
       - name: Install jq
         run: sudo apt-get install jq -y
 
       - name: Load PBI list
-        run: |
-          jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
+        run: jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
 
       - name: Create Issues + Add to Project
         env:
@@ -38,17 +44,15 @@ jobs:
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue PBI $ID zaten var, atlanıyor."
+              echo "Issue PBI $ID already exists, skipping."
               ISSUE_NUMBER=$EXIST
             else
-              ISSUE_NUMBER=$( \
-                gh issue create \
-                  --title "PBI $ID - $TITLE" \
-                  --body "$DESC" \
-                  --label "$CAT" \
-                  --label "priority-medium" \
-                  --json number | jq -r '.number' \
-              )
+              ISSUE_NUMBER=$(gh issue create \
+                --title "PBI $ID - $TITLE" \
+                --body "$DESC" \
+                --label "$CAT" \
+                --label "priority-medium" \
+                --json number | jq -r '.number')
             fi
 
             ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
