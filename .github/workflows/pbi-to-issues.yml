@@ -16,12 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Update GitHub CLI
+      - name: Install latest GitHub CLI manually
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install -y gh
+          curl -L https://github.com/cli/cli/releases/latest/download/gh_2.63.2_linux_amd64.tar.gz -o gh.tar.gz
+          tar xzf gh.tar.gz
+          sudo mv gh_*/bin/gh /usr/local/bin/
+          gh --version
 
       - name: Install jq
         run: sudo apt-get install jq -y
