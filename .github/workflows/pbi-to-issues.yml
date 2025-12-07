@@ -16,18 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install latest GitHub CLI manually
+      - name: Install GitHub CLI
         run: |
-          curl -L https://github.com/cli/cli/releases/latest/download/gh_2.63.2_linux_amd64.tar.gz -o gh.tar.gz
-          tar xzf gh.tar.gz
-          sudo mv gh_*/bin/gh /usr/local/bin/
-          gh --version
+          sudo apt-get update
+          sudo apt-get install -y gh jq
 
-      - name: Install jq
-        run: sudo apt-get install jq -y
-
-      - name: Load PBI list
-        run: jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
+      - name: Load JSON into file
+        run: jq -c '.[]' .github/pbi-list.json > rows.txt
 
       - name: Create Issues + Add to Project
         env:
@@ -44,14 +39,13 @@ jobs:
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue PBI $ID already exists, skipping."
+              echo "Issue already exists, skipping."
               ISSUE_NUMBER=$EXIST
             else
               ISSUE_NUMBER=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
-                --label "priority-medium" \
                 --json number | jq -r '.number')
             fi
 
@@ -68,4 +62,4 @@ jobs:
               }
             ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
 
-          done < pbi_rows.txt
+          done < rows.txt
