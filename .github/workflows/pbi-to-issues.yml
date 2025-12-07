@@ -2,31 +2,39 @@ name: Auto Generate PBI Issues and Add to Project
 
 on:
   workflow_dispatch:
-
   pull_request:
     types:
       - closed   # Merge edildiğinde tetiklenmesi için
-
   push:
     branches:
       - main     # Manuel push olursa yine tetikler
 
+# GITHUB_TOKEN izinlerini açıyoruz (Action ayarlarından da açık olmalı)
+permissions:
+  issues: write
+  contents: read
+  repository-projects: write
+  # Eğer Organization projesi kullanıyorsan project izni için PAT gerekebilir,
+  # ama repo projesi ise bu izinler genellikle yeterlidir.
+
 jobs:
   generate:
-    # PR closed event geldiyse → sadece merged ise çalıştır
+    # PR closed event geldiyse -> sadece merged ise çalıştır
     if: >
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
 
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI   # Senin gerçek project ID’n
+      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI   # Senin proje ID'n
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token'ı global env olarak tanımladık
 
     steps:
       - uses: actions/checkout@v3
 
-      # Modern ve sorunsuz GH CLI kurulumu (apt-key hatası YOK)
+      # Modern ve sorunsuz GH CLI kurulumu
       - name: Install GitHub CLI
         run: |
           type -p curl >/dev/null || sudo apt install curl -y
@@ -45,8 +53,6 @@ jobs:
         run: jq -c '.[]' .github/pbi-list.json > pbi_rows.txt
 
       - name: Create Issues + Add to Project
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           while IFS= read -r row; do
             ID=$(echo "$row" | jq -r '.id')
@@ -56,26 +62,32 @@ jobs:
 
             echo "Processing PBI $ID - $TITLE"
 
-            # Bu PBI daha önce oluşturulmuş mu?
-            EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
+            # 1. Kontrol: Bu PBI daha önce oluşturulmuş mu?
+            # Arama yaparken başlık içinde "PBI <ID>" var mı diye bakıyoruz.
+            EXIST=$(gh issue list --search "PBI $ID in:title" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
-              echo "Issue PBI $ID already exists, skipping."
+              echo "Issue PBI $ID already exists (Issue #$EXIST), skipping creation."
               ISSUE_NUMBER=$EXIST
             else
-              # Yeni issue oluştur
-              ISSUE_NUMBER=$(gh issue create \
+              # 2. Oluşturma: --json kullanmadan oluşturuyoruz.
+              # Başarılı olursa çıktı: https://github.com/kullanici/repo/issues/123
+              CREATED_URL=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
-                --label "priority-medium" \
-                --json number | jq -r '.number')
+                --label "priority-medium")
+              
+              # URL'in sonundaki sayıyı alıyoruz (awk ile)
+              ISSUE_NUMBER=$(echo "$CREATED_URL" | awk -F '/' '{print $NF}')
+              
+              echo "Created Issue #$ISSUE_NUMBER"
             fi
 
-            # Node ID çek
+            # 3. Node ID Çekme: Projeye eklemek için GraphQL ID'si lazım
             ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
 
-            # Projeye ekle
+            # 4. Projeye Ekleme (GraphQL API)
             gh api graphql -f query='
               mutation($project:ID!, $content:ID!) {
                 addProjectV2ItemById(input: {
