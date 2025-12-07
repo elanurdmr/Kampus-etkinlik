@@ -85,3 +85,72 @@ class GeriSayimAyarlari(Base):
     bildirim_gonder = Column(Boolean, default=True)
     olusturma_tarihi = Column(DateTime, default=datetime.now)
 
+
+class IlgiAlani(Base):
+    """İlgi alanları (Spor, Müzik, Teknoloji vb.)"""
+    __tablename__ = "ilgi_alanlari"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    alan_adi = Column(String(100), unique=True, nullable=False)
+    aciklama = Column(Text)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    aktif = Column(Boolean, default=True)
+
+
+class KullaniciIlgiAlani(Base):
+    """Kullanıcıların ilgi alanları (many-to-many)"""
+    __tablename__ = "kullanici_ilgi_alanlari"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    ilgi_alani_id = Column(Integer, ForeignKey("ilgi_alanlari.id"), nullable=False)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+
+
+class Kulup(Base):
+    """Kulüpler (Spor Kulübü, Müzik Kulübü vb.)"""
+    __tablename__ = "kulupler"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kulup_adi = Column(String(200), nullable=False)
+    aciklama = Column(Text)
+    ilgi_alani_id = Column(Integer, ForeignKey("ilgi_alanlari.id"))
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    aktif = Column(Boolean, default=True)
+    
+    # İlişkiler
+    etkinlikler = relationship("KulupEtkinligi", back_populates="kulup")
+
+
+class KulupEtkinligi(Base):
+    """Kulüp etkinlikleri"""
+    __tablename__ = "kulup_etkinlikleri"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kulup_id = Column(Integer, ForeignKey("kulupler.id"), nullable=False)
+    etkinlik_adi = Column(String(200), nullable=False)
+    aciklama = Column(Text)
+    tarih = Column(DateTime, nullable=False)
+    konum = Column(String(200))
+    ilgi_alanlari = Column(String(500))  # Virgülle ayrılmış ilgi alanı ID'leri
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    aktif = Column(Boolean, default=True)
+    
+    # İlişkiler
+    kulup = relationship("Kulup", back_populates="etkinlikler")
+    tercihler = relationship("KullaniciEtkinlikTercihi", back_populates="etkinlik")
+
+
+class KullaniciEtkinlikTercihi(Base):
+    """Kullanıcıların etkinlik tercihleri (katılacak/katılmayacak)"""
+    __tablename__ = "kullanici_etkinlik_tercihleri"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    etkinlik_id = Column(Integer, ForeignKey("kulup_etkinlikleri.id"), nullable=False)
+    durum = Column(String(50), nullable=False)  # 'katilacak', 'katilmayacak', 'belki'
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    
+    # İlişkiler
+    etkinlik = relationship("KulupEtkinligi", back_populates="tercihler")
+

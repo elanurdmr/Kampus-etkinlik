@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Akademik Takvim | Kampüs Sistemi</title>
+  <title>Akademik Takvim | Kamps Sistemi</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .loading {
@@ -77,27 +77,10 @@
   $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
-<header class="topbar">
-  <h1>Kampüs Etkinlik Takip Sistemi</h1>
-  <nav class="menu">
-    <a href="index.php" class="<?= $currentPage == 'index.php' ? 'active' : '' ?>">Ana Sayfa</a>
-    <a href="etkinlikler.php" class="<?= $currentPage == 'etkinlikler.php' ? 'active' : '' ?>">Etkinlikler</a>
-    <a href="takvim.php" class="<?= $currentPage == 'takvim.php' ? 'active' : '' ?>">Eski Takvim</a>
-    <a href="akademik-takvim.php" class="<?= $currentPage == 'akademik-takvim.php' ? 'active' : '' ?>">Akademik Takvim (API)</a>
-    <a href="etkinlik-yonetim.php" class="<?= $currentPage == 'etkinlik-yonetim.php' ? 'active' : '' ?>">Etkinlik Yönetimi</a>
-
-    <?php if (!isset($_SESSION['user_id'])): ?>
-      <a href="login.php" class="login-btn">Giriş Yap</a>
-      <a href="signup.php" class="signup-btn">Kayıt Ol</a>
-    <?php else: ?>
-      <a href="profile.php" class="profile-btn">Profilim</a>
-      <a href="logout.php" class="logout-btn">Çıkış Yap</a>
-    <?php endif; ?>
-  </nav>
-</header>
+<?php include "navbar.php"; ?>
 
 <main class="takvim-container">
-  <h2>🎓 Akademik Takvim - Backend API</h2>
+  <h2>📅 Akademik Takvim - Backend API</h2>
   <p style="text-align: center; color: #666;">Bu sayfa Backend API'den veri çekmektedir: <code>http://localhost:8000/api/calendar</code></p>
   
   <div class="filter-buttons">
@@ -189,12 +172,12 @@ function displayEtkinlikler(etkinlikler) {
         </h3>
         <div class="etkinlik-info">
           <p><strong>📅 Başlangıç:</strong> <span class="etkinlik-date">${formatTarih(baslangicTarihi)}</span></p>
-          ${bitisTarihi ? `<p><strong>📅 Bitiş:</strong> <span class="etkinlik-date">${formatTarih(bitisTarihi)}</span></p>` : ''}
+          ${bitisTarihi ? `<p><strong>⏰ Bitiş:</strong> <span class="etkinlik-date">${formatTarih(bitisTarihi)}</span></p>` : ''}
           ${etkinlik.konum ? `<p><strong>📍 Konum:</strong> ${etkinlik.konum}</p>` : ''}
           ${etkinlik.aciklama ? `<p><strong>📝 Açıklama:</strong> ${etkinlik.aciklama}</p>` : ''}
         </div>
         <div style="margin-top: 10px; font-size: 12px; color: #999;">
-          <span>🆔 ID: ${etkinlik.id}</span> | 
+          <span>🔑 ID: ${etkinlik.id}</span> | 
           <span>✅ ${etkinlik.aktif ? 'Aktif' : 'Pasif'}</span>
         </div>
       </div>
@@ -244,4 +227,5 @@ setInterval(fetchEtkinlikler, 30000);
 
 </body>
 </html>
+
 

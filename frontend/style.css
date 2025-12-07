@@ -250,18 +250,54 @@ body {
 
 .social-icons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
 }
 
-.social-icons img {
-  width: 28px;
-  height: 28px;
-  filter: brightness(0) invert(1);
-  transition: transform 0.2s;
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2em;
+  transition: all 0.3s;
 }
 
-.social-icons img:hover {
-  transform: scale(1.15);
+.social-icon:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.social-icon.facebook {
+  background: #1877f2;
+}
+
+.social-icon.facebook:hover {
+  background: #145dbf;
+}
+
+.social-icon.instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.social-icon.twitter {
+  background: #1da1f2;
+}
+
+.social-icon.twitter:hover {
+  background: #1a8cd8;
+}
+
+.social-icon.linkedin {
+  background: #0077b5;
+}
+
+.social-icon.linkedin:hover {
+  background: #005885;
 }
 
 .footer-bottom {
