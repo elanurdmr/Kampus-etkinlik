@@ -1,46 +1,70 @@
-- name: Create Issues + Add to Project
-  env:
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    while IFS= read -r row; do
-      ID=$(echo $row | jq -r '.id')
-      TITLE=$(echo $row | jq -r '.title')
-      DESC=$(echo $row | jq -r '.desc')
-      CAT=$(echo $row | jq -r '.cat')
+name: Auto Generate PBI Issues and Add to Project
 
-      echo "Processing PBI $ID - $TITLE"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/pbi-list.json"
 
-      # Zaten var mı?
-      EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
+jobs:
+  generate:
+    runs-on: ubuntu-latest
 
-      if [ "$EXIST" != "null" ]; then
-        echo "Issue PBI $ID zaten var, atlanıyor."
-        ISSUE_NUMBER=$EXIST
-      else
-        echo "Yeni issue oluşturuluyor..."
+    env:
+      PROJECT_ID: PVT_kwHOCQuiAM4BIXwI
 
-        ISSUE_URL=$(gh issue create \
-          --title "PBI $ID - $TITLE" \
-          --body "$DESC" \
-          --label "$CAT" \
-          --label "priority-medium")
+    steps:
+      - uses: actions/checkout@v3
 
-        ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-      fi
+      - name: Install jq
+        run: sudo apt-get install jq -y
 
-      echo "Issue #$ISSUE_NUMBER → Project’e ekleniyor..."
+      - name: Load PBI list safely
+        run: |
+          echo "LIST=$(jq -c '.[]' .github/pbi-list.json)" >> $GITHUB_ENV
 
-      ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
+      - name: Create Issues + Add to Project
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for row in $LIST; do
+            ID=$(echo $row | jq -r '.id')
+            TITLE=$(echo $row | jq -r '.title')
+            DESC=$(echo $row | jq -r '.desc')
+            CAT=$(echo $row | jq -r '.cat')
 
-      gh api graphql -f query='
-        mutation($project:ID!, $content:ID!) {
-          addProjectV2ItemById(input: {
-            projectId: $project
-            contentId: $content
-          }) {
-            item { id }
-          }
-        }
-      ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
+            echo "Processing PBI $ID - $TITLE"
 
-    done <<< "$LIST"
+            # Issue zaten var mı?
+            EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
+
+            if [ "$EXIST" != "null" ]; then
+              echo "Issue PBI $ID zaten var, atlanıyor."
+              ISSUE_NUMBER=$EXIST
+            else
+              echo "Yeni issue oluşturuluyor..."
+              ISSUE_URL=$(gh issue create \
+                --title "PBI $ID - $TITLE" \
+                --body "$DESC" \
+                --label "$CAT" \
+                --label "priority-medium")
+
+              ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+            fi
+
+            echo "Issue #$ISSUE_NUMBER → Project’e ekleniyor..."
+
+            ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
+
+            gh api graphql -f query='
+              mutation($project:ID!, $content:ID!) {
+                addProjectV2ItemById(input: {
+                  projectId: $project
+                  contentId: $content
+                }) {
+                  item { id }
+                }
+              }
+            ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
+
+          done
