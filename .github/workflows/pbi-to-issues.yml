@@ -3,8 +3,8 @@ name: Auto Generate PBI Issues and Add to Project
 on:
   workflow_dispatch:
   push:
-    paths:
-      - ".github/pbi-list.json"
+    branches:
+      - main
 
 jobs:
   generate:
@@ -19,9 +19,9 @@ jobs:
       - name: Install jq
         run: sudo apt-get install jq -y
 
-      - name: Load PBI list safely
-        run: |
-          echo "LIST=$(jq -c '.[]' .github/pbi-list.json)" >> $GITHUB_ENV
+      - name: Load PBI list
+        id: load
+        run: echo "LIST=$(jq -c '.[]' .github/pbi-list.json)" >> $GITHUB_ENV
 
       - name: Create Issues + Add to Project
         env:
@@ -35,24 +35,19 @@ jobs:
 
             echo "Processing PBI $ID - $TITLE"
 
-            # Issue zaten var mı?
             EXIST=$(gh issue list --search "PBI $ID" --json number | jq '.[0].number')
 
             if [ "$EXIST" != "null" ]; then
               echo "Issue PBI $ID zaten var, atlanıyor."
               ISSUE_NUMBER=$EXIST
             else
-              echo "Yeni issue oluşturuluyor..."
-              ISSUE_URL=$(gh issue create \
+              ISSUE_NUMBER=$(gh issue create \
                 --title "PBI $ID - $TITLE" \
                 --body "$DESC" \
                 --label "$CAT" \
-                --label "priority-medium")
-
-              ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+                --label "priority-medium" \
+                --json number | jq -r '.number')
             fi
-
-            echo "Issue #$ISSUE_NUMBER → Project’e ekleniyor..."
 
             ISSUE_NODE=$(gh issue view $ISSUE_NUMBER --json node_id -q '.node_id')
 
@@ -66,5 +61,4 @@ jobs:
                 }
               }
             ' -f project=$PROJECT_ID -f content=$ISSUE_NODE
-
           done
