@@ -24,9 +24,10 @@
     <div class="footer-column">
       <h4>Bizi Takip Edin</h4>
       <div class="social-icons">
-        <a href="#"><img src="img/facebook.png" alt="Facebook"></a>
-        <a href="#"><img src="img/instagram.png" alt="Instagram"></a>
-        <a href="#"><img src="img/twitter.png" alt="Twitter"></a>
+        <a href="#" class="social-icon facebook" title="Facebook">f</a>
+        <a href="#" class="social-icon instagram" title="Instagram">📷</a>
+        <a href="#" class="social-icon twitter" title="Twitter">🐦</a>
+        <a href="#" class="social-icon linkedin" title="LinkedIn">in</a>
       </div>
     </div>
   </div>
