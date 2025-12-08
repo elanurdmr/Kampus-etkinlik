@@ -1,0 +1,27 @@
+name: Create Default Labels
+
+on:
+  workflow_dispatch:
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lannonbr/issue-label-manager-action@2.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          delete: false
+          labels: |
+            [
+              {"name": "backend", "color": "5319e7"},
+              {"name": "frontend", "color": "1d76db"},
+              {"name": "database", "color": "0e8a16"},
+              {"name": "test", "color": "d93f0b"},
+              {"name": "mobile", "color": "fbca04"},
+              {"name": "enhancement", "color": "a2eeef"},
+              {"name": "bug", "color": "d73a4a"},
+              {"name": "priority-high", "color": "e11d21"},
+              {"name": "priority-medium", "color": "fbca04"},
+              {"name": "priority-low", "color": "c2e0c6"}
+            ]
