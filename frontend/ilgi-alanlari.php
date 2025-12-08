@@ -127,7 +127,7 @@ $kullanici_id = 1; // Gerek sistemde session'dan alınacak
 <?php include "navbar.php"; ?>
 
 <main class="ilgi-container">
-  <h1 class="ilgi-baslik">🎯 İlgi Alanlarını Seç</h1>
+  <h1 class="ilgi-baslik">İlgi Alanlarını Seç</h1>
   <p class="aciklama">
     İlgilendiğin alanları seç, sana özel etkinlik önerileri alalım!
   </p>
@@ -144,7 +144,7 @@ $kullanici_id = 1; // Gerek sistemde session'dan alınacak
 
   <div class="oneriler-link">
     <a href="etkinlik-onerileri.php">
-      ➡️ Etkinlik Önerilerine Git
+      Etkinlik Önerilerine Git
     </a>
   </div>
 </main>
@@ -158,13 +158,13 @@ let secilenIlgiAlanlar = new Set();
 
 // Icon eşleştirmeleri
 const iconlar = {
-  'Spor': '⚽',
-  'Müzik': '🎵',
-  'Teknoloji': '💻',
-  'Sanat': '🎨',
-  'Edebiyat': '📚',
-  'Sinema': '🎬',
-  'Tiyatro': '🎭',
+  'Spor': '',
+  'Müzik': '',
+  'Teknoloji': '',
+  'Sanat': '',
+  'Edebiyat': '',
+  'Sinema': '',
+  'Tiyatro': '',
   'Fotoğrafçılık': '📷',
   'Sosyal Sorumluluk': '🤝',
   'Girişimcilik': '💼'
@@ -250,7 +250,7 @@ async function kaydetIlgiAlanlari() {
     const data = await response.json();
     
     if (data.success) {
-      gosterMesaj('✅ İlgi alanlarınız kaydedildi!', 'success');
+      gosterMesaj('İlgi alanlarınız kaydedildi!', 'success');
       setTimeout(() => {
         window.location.href = 'etkinlik-onerileri.php';
       }, 1500);

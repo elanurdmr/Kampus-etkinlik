@@ -9,7 +9,7 @@ load_dotenv()
 # MySQL bağlantı ayarları
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://root:@localhost:3306/kampus-etkinlik"
+    "mysql+pymysql://root@127.0.0.1:3306/kampus-sistemi"
 )
 
 engine = create_engine(DATABASE_URL)

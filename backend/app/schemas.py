@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, date, time
 from typing import Optional
 
 # Akademik Etkinlik Şemaları
@@ -97,6 +97,68 @@ class GeriSayimAyarlariCreate(GeriSayimAyarlariBase):
 class GeriSayimAyarlari(GeriSayimAyarlariBase):
     id: int
     olusturma_tarihi: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# Kütüphane Şemaları
+class KutuphaneBase(BaseModel):
+    ad: str
+    konum: str
+    toplam_kapasite: int
+    aciklama: Optional[str] = None
+    acilis_saati: Optional[time] = None
+    kapanis_saati: Optional[time] = None
+    aktif: bool = True
+
+class KutuphaneCreate(KutuphaneBase):
+    pass
+
+class Kutuphane(KutuphaneBase):
+    id: int
+    olusturma_tarihi: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# Kütüphane Rezervasyon Şemaları
+class KutuphaneRezervasyonuBase(BaseModel):
+    kutuphane_id: int
+    kullanici_id: int
+    rezervasyon_tarihi: date
+    baslangic_saati: time
+    bitis_saati: time
+    notlar: Optional[str] = None
+
+class KutuphaneRezervasyonuCreate(KutuphaneRezervasyonuBase):
+    pass
+
+class KutuphaneRezervasyonu(KutuphaneRezervasyonuBase):
+    id: int
+    koltuk_no: Optional[str] = None
+    durum: str
+    olusturma_tarihi: datetime
+    guncellenme_tarihi: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# Kütüphane Doluluk Şemaları
+class KutuphaneDolulukBase(BaseModel):
+    kutuphane_id: int
+    tarih: date
+    saat_araligi: time
+    dolu_koltuk_sayisi: int = 0
+
+class KutuphaneDolulukCreate(KutuphaneDolulukBase):
+    pass
+
+class KutuphaneDoluluk(KutuphaneDolulukBase):
+    id: int
+    guncelleme_tarihi: datetime
     
     class Config:
         from_attributes = True

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import calendar, qr_system, oneri_sistemi
+from routers import calendar, qr_system, oneri_sistemi, kutuphane
 import uvicorn
 
 app = FastAPI(title="Akademik Takvim ve QR Sistem API")
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(calendar.router, prefix="/api/calendar", tags=["Akademik Takvim"])
 app.include_router(qr_system.router, prefix="/api/qr", tags=["QR Sistem"])
 app.include_router(oneri_sistemi.router, tags=["Öneri Sistemi"])
+app.include_router(kutuphane.router, prefix="/api/kutuphane", tags=["Kütüphane Rezervasyon"])
 
 @app.get("/")
 def read_root():
@@ -27,7 +28,8 @@ def read_root():
         "endpoints": {
             "akademik_takvim": "/api/calendar",
             "qr_sistem": "/api/qr",
-            "oneri_sistemi": "/api/oneri"
+            "oneri_sistemi": "/api/oneri",
+            "kutuphane_rezervasyon": "/api/kutuphane"
         }
     }
 

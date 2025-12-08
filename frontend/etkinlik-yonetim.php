@@ -115,12 +115,12 @@
   <div class="form-card">
     <form id="etkinlik-form">
       <div class="form-group">
-        <label for="baslik">📝 Etkinlik Başlığı *</label>
+        <label for="baslik">Etkinlik Başlığı *</label>
         <input type="text" id="baslik" name="baslik" required placeholder="Örn: Yazılım Geliştirme Workshop">
       </div>
 
       <div class="form-group">
-        <label for="etkinlik_turu">🗂️ Etkinlik Türü *</label>
+        <label for="etkinlik_turu">Etkinlik Türü *</label>
         <select id="etkinlik_turu" name="etkinlik_turu" required>
           <option value="">Seçiniz...</option>
           <option value="sinav">Sınav</option>
@@ -137,19 +137,19 @@
       </div>
 
       <div class="form-group">
-        <label for="baslangic_tarihi">📅 Başlangıç Tarihi ve Saati *</label>
+        <label for="baslangic_tarihi">Başlangıç Tarihi ve Saati *</label>
         <input type="datetime-local" id="baslangic_tarihi" name="baslangic_tarihi" required>
         <div class="form-hint">Etkinliğin başlayacağı tarih ve saat</div>
       </div>
 
       <div class="form-group">
-        <label for="bitis_tarihi">⏰ Bitiş Tarihi ve Saati</label>
+        <label for="bitis_tarihi">Bitiş Tarihi ve Saati</label>
         <input type="datetime-local" id="bitis_tarihi" name="bitis_tarihi">
         <div class="form-hint">Opsiyonel - Etkinliğin biteceği tarih ve saat</div>
       </div>
 
       <div class="form-group">
-        <label for="konum">📍 Konum</label>
+        <label for="konum">Konum</label>
         <input type="text" id="konum" name="konum" placeholder="Örn: A Blok Konferans Salonu">
       </div>
 
@@ -159,7 +159,7 @@
 
   <div style="margin-top: 20px; text-align: center;">
     <a href="akademik-takvim.php" style="color: #2196F3; text-decoration: none; font-weight: bold;">
-      ⬅️ Akademik Takvime Dön
+      Akademik Takvime Dön
     </a>
   </div>
 </div>
@@ -184,13 +184,13 @@ async function checkAPIStatus() {
     
     if (response.ok) {
       statusDiv.className = 'api-status api-online';
-      statusDiv.innerHTML = '✅ Backend API çalışıyor';
+      statusDiv.innerHTML = 'Backend API çalışıyor';
     } else {
       throw new Error('API yanıt vermiyor');
     }
   } catch (error) {
     statusDiv.className = 'api-status api-offline';
-    statusDiv.innerHTML = '❌ Backend API çalışmıyor - Lütfen Backend\'i başlatın';
+    statusDiv.innerHTML = 'Backend API çalışmıyor - Lütfen Backend\'i başlatın';
   }
 }
 
@@ -243,7 +243,7 @@ async function submitEtkinlik(data) {
       // Başarılı
       successDiv.style.display = 'block';
       successDiv.innerHTML = `
-        <strong>✅ Başarılı!</strong><br>
+        <strong>Başarılı!</strong><br>
         Etkinlik başarıyla eklendi: <strong>${result.baslik}</strong><br>
         <small>ID: ${result.id}</small>
       `;
@@ -263,7 +263,7 @@ async function submitEtkinlik(data) {
   } catch (error) {
     errorDiv.style.display = 'block';
     errorDiv.innerHTML = `
-      <strong>⚠️ Hata!</strong><br>
+      <strong>Hata!</strong><br>
       ${error.message}<br>
       <small>Backend API'nin çalıştığından emin olun.</small>
     `;

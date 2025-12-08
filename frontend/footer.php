@@ -2,7 +2,7 @@
   <div class="footer-container">
     <div class="footer-column">
       <h4>Hakkımızda</h4>
-      <p>Kampüs Etkinlik Takip Sistemi, öğrencilerin üniversite içi etkinlikleri kolayca takip etmesini sağlar. 🎓</p>
+      <p>Kampüs Etkinlik Takip Sistemi, öğrencilerin üniversite içi etkinlikleri kolayca takip etmesini sağlar.</p>
     </div>
 
     <div class="footer-column">
