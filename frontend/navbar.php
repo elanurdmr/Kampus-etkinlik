@@ -191,10 +191,11 @@
       <li><a href="index.php" class="<?= $currentPage == 'index.php' ? 'active' : '' ?>">Ana Sayfa</a></li>
       <li><a href="etkinlikler.php" class="<?= $currentPage == 'etkinlikler.php' ? 'active' : '' ?>">Etkinlikler</a></li>
       <li><a href="takvim.php" class="<?= $currentPage == 'takvim.php' ? 'active' : '' ?>">Akademik Takvim</a></li>
-      <li><a href="akademik-takvim.php" class="<?= $currentPage == 'akademik-takvim.php' ? 'active' : '' ?>">Takvim (API)</a></li>
+      <li><a href="akademik-takvim.php" class="<?= $currentPage == 'akademik-takvim.php' ? 'active' : '' ?>">Takvim</a></li>
       <li><a href="etkinlik-yonetim.php" class="<?= $currentPage == 'etkinlik-yonetim.php' ? 'active' : '' ?>">Etkinlik Yönetimi</a></li>
       <li><a href="ilgi-alanlari.php" class="<?= $currentPage == 'ilgi-alanlari.php' ? 'active' : '' ?>">İlgi Alanlarım</a></li>
       <li><a href="etkinlik-onerileri.php" class="<?= $currentPage == 'etkinlik-onerileri.php' ? 'active' : '' ?>">Öneriler</a></li>
+      <li><a href="rezervasyon-yap.php" class="<?= $currentPage == 'rezervasyon-yap.php' ? 'active' : '' ?>">Kütüphane Rezervasyonu</a></li>
     </ul>
     
     <div class="nav-actions" id="navActions">

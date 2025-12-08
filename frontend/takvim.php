@@ -90,7 +90,7 @@ include "db.php";
 <?php include "navbar.php"; ?>
 
 <main class="takvim-container">
-  <h1 class="takvim-baslik">📅 2025-2026 Akademik Takvimi</h1>
+  <h1 class="takvim-baslik">2025-2026 Akademik Takvimi</h1>
 
   <!-- GÜZ DÖNEMİ -->
   <div class="donem-section">
@@ -296,7 +296,7 @@ include "db.php";
 
   <!-- YAZ ÖĞRETİMİ -->
   <div class="donem-section">
-    <div class="donem-baslik">☀️ Yaz Öğretimi</div>
+    <div class="donem-baslik">Yaz Öğretimi</div>
     <table class="takvim-table">
       <thead>
         <tr>
@@ -363,7 +363,7 @@ include "db.php";
 
   <!-- RESMİ TATİLLER -->
   <div class="donem-section">
-    <div class="donem-baslik">🎉 Resmi Tatiller</div>
+    <div class="donem-baslik">Resmi Tatiller</div>
     <table class="takvim-table">
       <thead>
         <tr>

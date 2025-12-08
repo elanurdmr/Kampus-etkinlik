@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey, Date, Time
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
@@ -153,4 +153,58 @@ class KullaniciEtkinlikTercihi(Base):
     
     # İlişkiler
     etkinlik = relationship("KulupEtkinligi", back_populates="tercihler")
+
+
+class Kutuphane(Base):
+    """Kütüphane bilgileri"""
+    __tablename__ = "kutuphaneler"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    ad = Column(String(200), nullable=False)
+    konum = Column(String(200), nullable=False)
+    toplam_kapasite = Column(Integer, nullable=False)
+    aciklama = Column(Text)
+    acilis_saati = Column(Time, default="08:00:00")
+    kapanis_saati = Column(Time, default="22:00:00")
+    aktif = Column(Boolean, default=True)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    
+    # İlişkiler
+    rezervasyonlar = relationship("KutuphaneRezervasyonu", back_populates="kutuphane")
+    doluluk_bilgileri = relationship("KutuphaneDoluluk", back_populates="kutuphane")
+
+
+class KutuphaneRezervasyonu(Base):
+    """Kütüphane rezervasyon kayıtları"""
+    __tablename__ = "kutuphane_rezervasyonlar"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kutuphane_id = Column(Integer, ForeignKey("kutuphaneler.id"), nullable=False)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    rezervasyon_tarihi = Column(Date, nullable=False)
+    baslangic_saati = Column(Time, nullable=False)
+    bitis_saati = Column(Time, nullable=False)
+    koltuk_no = Column(String(10))
+    durum = Column(String(50), default="beklemede")  # beklemede, onaylandi, iptal_edildi, tamamlandi
+    notlar = Column(Text)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    guncellenme_tarihi = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # İlişkiler
+    kutuphane = relationship("Kutuphane", back_populates="rezervasyonlar")
+
+
+class KutuphaneDoluluk(Base):
+    """Kütüphane anlık doluluk bilgisi"""
+    __tablename__ = "kutuphane_doluluk"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kutuphane_id = Column(Integer, ForeignKey("kutuphaneler.id"), nullable=False)
+    tarih = Column(Date, nullable=False)
+    saat_araligi = Column(Time, nullable=False)
+    dolu_koltuk_sayisi = Column(Integer, default=0)
+    guncelleme_tarihi = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # İlişkiler
+    kutuphane = relationship("Kutuphane", back_populates="doluluk_bilgileri")
 

@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
 $servername = "localhost";
 $username = "root";
@@ -13,6 +11,4 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
   die("Bağlantı hatası: " . $conn->connect_error);
 }
-
-$conn->set_charset("utf8mb4");
 ?>

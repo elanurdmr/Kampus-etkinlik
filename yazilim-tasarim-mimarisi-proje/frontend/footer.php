@@ -2,7 +2,7 @@
   <div class="footer-container">
     <div class="footer-column">
       <h4>Hakkımızda</h4>
-      <p>Kampüs Etkinlik Takip Sistemi, öğrencilerin üniversite içi etkinlikleri kolayca takip etmesini sağlar.</p>
+      <p>Kampüs Etkinlik Takip Sistemi, öğrencilerin üniversite içi etkinlikleri kolayca takip etmesini sağlar. 🎓</p>
     </div>
 
     <div class="footer-column">
@@ -24,10 +24,9 @@
     <div class="footer-column">
       <h4>Bizi Takip Edin</h4>
       <div class="social-icons">
-        <a href="#" class="social-icon facebook" title="Facebook">f</a>
-        <a href="#" class="social-icon instagram" title="Instagram">📷</a>
-        <a href="#" class="social-icon twitter" title="Twitter">🐦</a>
-        <a href="#" class="social-icon linkedin" title="LinkedIn">in</a>
+        <a href="#"><img src="img/facebook.png" alt="Facebook"></a>
+        <a href="#"><img src="img/instagram.png" alt="Instagram"></a>
+        <a href="#"><img src="img/twitter.png" alt="Twitter"></a>
       </div>
     </div>
   </div>

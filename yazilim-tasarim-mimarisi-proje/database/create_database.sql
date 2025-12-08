@@ -2,8 +2,8 @@
 -- MySQL Veritabanı Oluşturma ve Tablo Tanımları
 
 -- Veritabanı oluştur
-CREATE DATABASE IF NOT EXISTS kampus- etkinlik CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE kampus- etkinlik;
+CREATE DATABASE IF NOT EXISTS akademik_sistem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE akademik_sistem;
 
 -- Kullanıcılar Tablosu
 CREATE TABLE IF NOT EXISTS kullanicilar (
@@ -83,58 +83,6 @@ INSERT INTO kullanicilar (ad, soyad, email, ogrenci_no, rol) VALUES
 ('Ayşe', 'Kaya', 'ayse.kaya@universite.edu.tr', '2021001002', 'ogrenci'),
 ('Mehmet', 'Demir', 'mehmet.demir@universite.edu.tr', '2021001003', 'ogrenci'),
 ('Fatma', 'Şahin', 'fatma.sahin@universite.edu.tr', 'OGR2024001', 'ogretmen');
-
--- Kütüphaneler Tablosu
-CREATE TABLE IF NOT EXISTS kutuphaneler (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ad VARCHAR(200) NOT NULL,
-    konum VARCHAR(200) NOT NULL,
-    toplam_kapasite INT NOT NULL,
-    aciklama TEXT,
-    acilis_saati TIME DEFAULT '08:00:00',
-    kapanis_saati TIME DEFAULT '22:00:00',
-    aktif BOOLEAN DEFAULT TRUE,
-    olusturma_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_aktif (aktif)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Kütüphane Rezervasyonları Tablosu
-CREATE TABLE IF NOT EXISTS kutuphane_rezervasyonlar (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    kutuphane_id INT NOT NULL,
-    kullanici_id INT NOT NULL,
-    rezervasyon_tarihi DATE NOT NULL,
-    baslangic_saati TIME NOT NULL,
-    bitis_saati TIME NOT NULL,
-    koltuk_no VARCHAR(10),
-    durum VARCHAR(50) DEFAULT 'beklemede' COMMENT 'beklemede, onaylandi, iptal_edildi, tamamlandi',
-    notlar TEXT,
-    olusturma_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
-    guncellenme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (kutuphane_id) REFERENCES kutuphaneler(id) ON DELETE CASCADE,
-    FOREIGN KEY (kullanici_id) REFERENCES kullanicilar(id) ON DELETE CASCADE,
-    INDEX idx_kutuphane (kutuphane_id),
-    INDEX idx_kullanici (kullanici_id),
-    INDEX idx_tarih (rezervasyon_tarihi),
-    INDEX idx_durum (durum)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Kütüphane Doluluk Durumu Tablosu (Anlık)
-CREATE TABLE IF NOT EXISTS kutuphane_doluluk (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    kutuphane_id INT NOT NULL,
-    tarih DATE NOT NULL,
-    saat_araligi TIME NOT NULL,
-    dolu_koltuk_sayisi INT DEFAULT 0,
-    guncelleme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (kutuphane_id) REFERENCES kutuphaneler(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_doluluk (kutuphane_id, tarih, saat_araligi),
-    INDEX idx_tarih_saat (tarih, saat_araligi)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Örnek kütüphane (Tek kütüphane)
-INSERT INTO kutuphaneler (ad, konum, toplam_kapasite, acilis_saati, kapanis_saati) VALUES
-('Doğuş Kütüphanesi', 'Dudullu Kampüs -2.Kat', 100, '08:00:00', '22:00:00');
 
 -- Örnek etkinlikler
 INSERT INTO akademik_etkinlikler (baslik, aciklama, etkinlik_turu, baslangic_tarihi, bitis_tarihi, konum) VALUES

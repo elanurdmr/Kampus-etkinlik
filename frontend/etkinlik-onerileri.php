@@ -255,7 +255,7 @@ $kullanici_id = 1; // Gerek sistemde session'dan alınacak
 <?php include "navbar.php"; ?>
 
 <main class="oneriler-container">
-  <h1 class="baslik">💡 Senin İçin Önerilen Etkinlikler</h1>
+  <h1 class="baslik">Senin İçin Önerilen Etkinlikler</h1>
   <p class="alt-baslik">İlgi alanlarına göre özel olarak seçildi!</p>
 
   <div id="etkinlikGrid" class="etkinlik-grid">
@@ -268,17 +268,17 @@ $kullanici_id = 1; // Gerek sistemde session'dan alınacak
   <div class="modal-content">
     <div class="modal-header">
       <span class="close" onclick="kapatModal()">&times;</span>
-      <h2 id="modalBaslik">🎉 Yeni Etkinlik Önerisi!</h2>
+      <h2 id="modalBaslik">Yeni Etkinlik Önerisi!</h2>
     </div>
     <div class="modal-body">
       <h3 id="modalEtkinlikAdi"></h3>
       <p id="modalEtkinlikDetay"></p>
       <div class="modal-buttons">
         <button class="modal-btn btn-katil" onclick="cevapla('katilacak')">
-          ✅ Katılacağım
+          Katılacağım
         </button>
         <button class="modal-btn btn-katilma" onclick="cevapla('katilmayacak')">
-          ❌ Katılmayacağım
+          Katılmayacağım
         </button>
       </div>
     </div>
@@ -306,7 +306,7 @@ async function yukleOneriler() {
     if (!data.success || data.data.length === 0) {
       grid.innerHTML = `
         <div class="bos-durum">
-          <div class="bos-durum-icon">🔍</div>
+          <div class="bos-durum-icon"></div>
           <h3>Öneri Bulunamadı</h3>
           <p>${data.message || 'Şu anda sana uygun etkinlik önerisi yok.'}</p>
           <a href="ilgi-alanlari.php" style="color: #c41e3a; font-weight: 600;">
@@ -326,7 +326,7 @@ async function yukleOneriler() {
       card.innerHTML = `
         <div class="etkinlik-header">
           <div class="etkinlik-adi">${etkinlik.etkinlik_adi}</div>
-          <div class="kulup-adi">🏛️ ${etkinlik.kulup.kulup_adi}</div>
+          <div class="kulup-adi">${etkinlik.kulup.kulup_adi}</div>
         </div>
         <div class="etkinlik-body">
           <div class="eslesme-badge">
@@ -347,11 +347,11 @@ async function yukleOneriler() {
           </details>
           ` : ''}
           <div class="etkinlik-detay">
-            <span class="etkinlik-detay-icon">📅</span>
+            <span class="etkinlik-detay-icon"></span>
             ${tarih.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
           <div class="etkinlik-detay">
-            <span class="etkinlik-detay-icon">⏰</span>
+            <span class="etkinlik-detay-icon"></span>
             ${tarih.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </div>
           ${etkinlik.konum ? `
