@@ -1,4 +1,13 @@
-<?php include "db.php"; ?>
+<?php 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+session_start();
+include "db.php";
+
+// Aktif sayfa ismini tespit ediyoruz
+$currentPage = basename($_SERVER['PHP_SELF']);
+?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -9,10 +18,6 @@
 </head>
 <body>
 
-<?php
-  // Aktif sayfa ismini tespit ediyoruz
-  $currentPage = basename($_SERVER['PHP_SELF']);
-?>
 <?php include "navbar.php"; ?>
 
 <section class="slider">

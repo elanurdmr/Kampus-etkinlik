@@ -343,7 +343,10 @@ $kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
 
 <script>
 const API_URL = 'http://localhost:8000/api/kutuphane';
-const kullaniciId = <?= $kullanici_id ?>;
+// kullaniciId navbar.php'den geliyor
+if (typeof window.kullaniciId === 'undefined') {
+  window.kullaniciId = <?= $kullanici_id ?>;
+}
 
 let rezervasyonlar = [];
 let currentFilter = 'aktif';
