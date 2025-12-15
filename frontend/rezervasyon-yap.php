@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "lang.php";
 $currentPage = basename($_SERVER['PHP_SELF']);
 
 // Kullanıcı ID'si

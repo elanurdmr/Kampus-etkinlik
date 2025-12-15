@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 
 session_start();
 include "db.php";
+require_once "lang.php";
 require_once "kulup_etkinlikleri_mock.php";
 
 // Aktif sayfa ismini tespit ediyoruz
@@ -16,7 +17,7 @@ $oneCikanEtkinlikler = array_values(array_filter($kulupEtkinlikleri, fn($e) => !
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kampüs Etkinlik Takip Sistemi</title>
+  <title><?= t('Kampüs Etkinlik Takip Sistemi', 'Campus Event Tracking System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .yaklasan-popup {
@@ -105,16 +106,36 @@ $oneCikanEtkinlikler = array_values(array_filter($kulupEtkinlikleri, fn($e) => !
 </section>
 
 <section class="duyurular">
-  <h2>Duyurular</h2>
+  <h2><?= t('Duyurular', 'Announcements') ?></h2>
   <div class="duyuru-listesi">
     <?php if (!empty($oneCikanEtkinlikler)): ?>
       <?php foreach (array_slice($oneCikanEtkinlikler, 0, 3) as $etkinlik): ?>
         <div class="duyuru">
-          <h3><?php echo htmlspecialchars($etkinlik['ad']); ?></h3>
+          <h3>
+            <?php
+              echo htmlspecialchars(
+                $currentLang === 'en' && !empty($etkinlik['ad_en'])
+                  ? $etkinlik['ad_en']
+                  : $etkinlik['ad']
+              );
+            ?>
+          </h3>
           <p>
-            <?php echo htmlspecialchars($etkinlik['kulup']); ?> |
+            <?php
+              echo htmlspecialchars(
+                $currentLang === 'en' && !empty($etkinlik['kulup_en'])
+                  ? $etkinlik['kulup_en']
+                  : $etkinlik['kulup']
+              );
+            ?> |
             <?php echo htmlspecialchars($etkinlik['tarih']); ?> |
-            <?php echo htmlspecialchars($etkinlik['konum']); ?>
+            <?php
+              echo htmlspecialchars(
+                $currentLang === 'en' && !empty($etkinlik['konum_en'])
+                  ? $etkinlik['konum_en']
+                  : $etkinlik['konum']
+              );
+            ?>
           </p>
         </div>
       <?php endforeach; ?>

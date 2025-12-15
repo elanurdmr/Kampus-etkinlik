@@ -1,10 +1,13 @@
-<?php include "db.php"; ?>
+<?php
+include "db.php";
+require_once "lang.php";
+?>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="<?= $currentLang === 'en' ? 'en' : 'tr' ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Etkinlik Ynetimi | Kamps Sistemi</title>
+  <title><?= t('Etkinlik Yönetimi | Kampüs Sistemi', 'Event Management | Campus System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .yonetim-container {
@@ -102,8 +105,14 @@
 <?php include "navbar.php"; ?>
 
 <div class="yonetim-container">
-  <h2> Yeni Etkinlik Ekle</h2>
-  <p style="color: #666; margin-bottom: 20px;">Backend API'ye yeni etkinlik ekleyin: <code>http://localhost:8000/api/calendar/etkinlik</code></p>
+  <h2><?= t('Yeni Etkinlik Ekle', 'Add New Event') ?></h2>
+  <p style="color: #666; margin-bottom: 20px;">
+    <?= t(
+      "Backend API'ye yeni etkinlik ekleyin:",
+      'Create a new event in the Backend API:'
+    ) ?>
+    <code>http://localhost:8000/api/calendar/etkinlik</code>
+  </p>
 
   <div id="api-status" class="api-status">
     <span>⏳ API durumu kontrol ediliyor...</span>
@@ -115,51 +124,51 @@
   <div class="form-card">
     <form id="etkinlik-form">
       <div class="form-group">
-        <label for="baslik">Etkinlik Başlığı *</label>
-        <input type="text" id="baslik" name="baslik" required placeholder="Örn: Yazılım Geliştirme Workshop">
+        <label for="baslik"><?= t('Etkinlik Başlığı *', 'Event Title *') ?></label>
+        <input type="text" id="baslik" name="baslik" required placeholder="<?= t('Örn: Yazılım Geliştirme Workshop', 'e.g. Software Development Workshop') ?>">
       </div>
 
       <div class="form-group">
-        <label for="etkinlik_turu">Etkinlik Türü *</label>
+        <label for="etkinlik_turu"><?= t('Etkinlik Türü *', 'Event Type *') ?></label>
         <select id="etkinlik_turu" name="etkinlik_turu" required>
-          <option value="">Seçiniz...</option>
-          <option value="sinav">Sınav</option>
-          <option value="odev">Ödev</option>
-          <option value="etkinlik">Etkinlik</option>
-          <option value="seminer">Seminer</option>
-          <option value="proje">Proje</option>
+          <option value=""><?= t('Seçiniz...', 'Select...') ?></option>
+          <option value="sinav"><?= t('Sınav', 'Exam') ?></option>
+          <option value="odev"><?= t('Ödev', 'Assignment') ?></option>
+          <option value="etkinlik"><?= t('Etkinlik', 'Event') ?></option>
+          <option value="seminer"><?= t('Seminer', 'Seminar') ?></option>
+          <option value="proje"><?= t('Proje', 'Project') ?></option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="aciklama">📄 Açıklama</label>
-        <textarea id="aciklama" name="aciklama" placeholder="Etkinlik hakkında detaylı bilgi..."></textarea>
+        <label for="aciklama">📄 <?= t('Açıklama', 'Description') ?></label>
+        <textarea id="aciklama" name="aciklama" placeholder="<?= t('Etkinlik hakkında detaylı bilgi...', 'Detailed information about the event...') ?>"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="baslangic_tarihi">Başlangıç Tarihi ve Saati *</label>
+        <label for="baslangic_tarihi"><?= t('Başlangıç Tarihi ve Saati *', 'Start Date & Time *') ?></label>
         <input type="datetime-local" id="baslangic_tarihi" name="baslangic_tarihi" required>
-        <div class="form-hint">Etkinliğin başlayacağı tarih ve saat</div>
+        <div class="form-hint"><?= t('Etkinliğin başlayacağı tarih ve saat', 'Date and time when the event starts') ?></div>
       </div>
 
       <div class="form-group">
-        <label for="bitis_tarihi">Bitiş Tarihi ve Saati</label>
+        <label for="bitis_tarihi"><?= t('Bitiş Tarihi ve Saati', 'End Date & Time') ?></label>
         <input type="datetime-local" id="bitis_tarihi" name="bitis_tarihi">
-        <div class="form-hint">Opsiyonel - Etkinliğin biteceği tarih ve saat</div>
+        <div class="form-hint"><?= t('Opsiyonel - Etkinliğin biteceği tarih ve saat', 'Optional - Date and time when the event ends') ?></div>
       </div>
 
       <div class="form-group">
-        <label for="konum">Konum</label>
-        <input type="text" id="konum" name="konum" placeholder="Örn: A Blok Konferans Salonu">
+        <label for="konum"><?= t('Konum', 'Location') ?></label>
+        <input type="text" id="konum" name="konum" placeholder="<?= t('Örn: A Blok Konferans Salonu', 'e.g. A Block Conference Hall') ?>">
       </div>
 
-      <button type="submit" class="submit-btn">➕ Etkinlik Ekle</button>
+      <button type="submit" class="submit-btn">➕ <?= t('Etkinlik Ekle', 'Add Event') ?></button>
     </form>
   </div>
 
   <div style="margin-top: 20px; text-align: center;">
     <a href="akademik-takvim.php" style="color: #2196F3; text-decoration: none; font-weight: bold;">
-      Akademik Takvime Dön
+      <?= t('Akademik Takvime Dön', 'Back to Academic Calendar') ?>
     </a>
   </div>
 </div>
@@ -184,13 +193,13 @@ async function checkAPIStatus() {
     
     if (response.ok) {
       statusDiv.className = 'api-status api-online';
-      statusDiv.innerHTML = 'Backend API çalışıyor';
+      statusDiv.innerHTML = '<?= t('Backend API çalışıyor', 'Backend API is running') ?>';
     } else {
       throw new Error('API yanıt vermiyor');
     }
   } catch (error) {
     statusDiv.className = 'api-status api-offline';
-    statusDiv.innerHTML = 'Backend API çalışmıyor - Lütfen Backend\'i başlatın';
+    statusDiv.innerHTML = '<?= t("Backend API çalışmıyor - Lütfen Backend'i başlatın", 'Backend API is not running - Please start the backend server') ?>';
   }
 }
 
@@ -243,8 +252,8 @@ async function submitEtkinlik(data) {
       // Başarılı
       successDiv.style.display = 'block';
       successDiv.innerHTML = `
-        <strong>Başarılı!</strong><br>
-        Etkinlik başarıyla eklendi: <strong>${result.baslik}</strong><br>
+        <strong><?= t('Başarılı!', 'Success!') ?></strong><br>
+        <?= t('Etkinlik başarıyla eklendi:', 'Event successfully created:') ?> <strong>${result.baslik}</strong><br>
         <small>ID: ${result.id}</small>
       `;
       
@@ -257,20 +266,20 @@ async function submitEtkinlik(data) {
       }, 2000);
       
     } else {
-      throw new Error(result.detail || 'Bir hata oluştu');
+      throw new Error(result.detail || '<?= t('Bir hata oluştu', 'An error occurred') ?>');
     }
     
   } catch (error) {
     errorDiv.style.display = 'block';
     errorDiv.innerHTML = `
-      <strong>Hata!</strong><br>
+      <strong><?= t('Hata!', 'Error!') ?></strong><br>
       ${error.message}<br>
-      <small>Backend API'nin çalıştığından emin olun.</small>
+      <small><?= t("Backend API'nin çalıştığından emin olun.", 'Please make sure the Backend API is running.') ?></small>
     `;
   } finally {
     // Butonu tekrar aktif et
     submitBtn.disabled = false;
-    submitBtn.textContent = '➕ Etkinlik Ekle';
+    submitBtn.textContent = '➕ <?= t('Etkinlik Ekle', 'Add Event') ?>';
   }
 }
 </script>
