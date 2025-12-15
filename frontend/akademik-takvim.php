@@ -1,10 +1,13 @@
-<?php include "db.php"; ?>
+<?php
+session_start();
+include "db.php";
+?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Akademik Takvim | Kamps Sistemi</title>
+  <title>Etkinlik Takvimim | Kampüs Sistemi</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .loading {
@@ -52,8 +55,7 @@
       color: #333;
     }
     .filter-buttons {
-      margin: 20px 0;
-      text-align: center;
+      display: none; /* Filtre butonlarını gizle */
     }
     .filter-btn {
       padding: 10px 20px;
@@ -69,19 +71,48 @@
       background: #2196F3;
       color: white;
     }
+    .katilacagim-container {
+      margin-top: 40px;
+    }
+    .katilacagim-card {
+      background: white;
+      padding: 15px 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-left: 4px solid #4caf50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .katilacagim-baslik {
+      font-weight: 600;
+      color: #333;
+    }
+    .katilacagim-detay {
+      font-size: 0.9em;
+      color: #666;
+    }
+    .katilacagim-geri-sayim {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #c41e3a;
+    }
   </style>
 </head>
 <body>
 
 <?php
   $currentPage = basename($_SERVER['PHP_SELF']);
+  $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 ?>
 
 <?php include "navbar.php"; ?>
 
 <main class="takvim-container">
-  <h2>Akademik Takvim - Backend API</h2>
-  <p style="text-align: center; color: #666;">Bu sayfa Backend API'den veri çekmektedir: <code>http://localhost:8000/api/calendar</code></p>
+  <h2>Etkinlik Takvimim</h2>
   
   <div class="filter-buttons">
     <button class="filter-btn active" data-filter="all">Tümü</button>
@@ -96,12 +127,22 @@
 
   <div id="error" style="display: none;"></div>
   <div id="etkinlikler-container"></div>
+
+  <section class="katilacagim-container">
+    <h3>Katılacağım Kulüp Etkinliklerim</h3>
+    <p style="color:#666; font-size:0.95em;">
+      İlgi alanlarına göre önerilen ve <strong>Katılacağım</strong> dediğin kulüp etkinlikleri burada listelenir.
+    </p>
+    <div id="katilacagim-container"></div>
+  </section>
 </main>
 
 <?php include "footer.php"; ?>
 
 <script>
 const API_URL = 'http://localhost:8000/api/calendar';
+const ONERI_API_URL = 'http://localhost:8000/api/oneri';
+const CURRENT_USER_ID = <?php echo $userId; ?>;
 let allEtkinlikler = [];
 let currentFilter = 'all';
 
@@ -109,6 +150,9 @@ let currentFilter = 'all';
 document.addEventListener('DOMContentLoaded', function() {
   fetchEtkinlikler();
   setupFilters();
+  if (CURRENT_USER_ID > 0) {
+    fetchKatilacagimEtkinlikler();
+  }
 });
 
 // Etkinlikleri Backend API'den çek
@@ -151,18 +195,23 @@ function displayEtkinlikler(etkinlikler) {
   const container = document.getElementById('etkinlikler-container');
   
   if (etkinlikler.length === 0) {
-    container.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: #999;">
-        <h3>Henüz etkinlik bulunmamaktadır</h3>
-        <p>Yeni etkinlik eklemek için <a href="etkinlik-yonetim.php">Etkinlik Yönetimi</a> sayfasını kullanabilirsiniz.</p>
-      </div>
-    `;
+    container.innerHTML = '';
     return;
   }
   
   container.innerHTML = etkinlikler.map(etkinlik => {
     const baslangicTarihi = new Date(etkinlik.baslangic_tarihi);
     const bitisTarihi = etkinlik.bitis_tarihi ? new Date(etkinlik.bitis_tarihi) : null;
+    const now = new Date();
+    let geriSayimHtml = '';
+    if (baslangicTarihi > now) {
+      const diffMs = baslangicTarihi - now;
+      const diffMinutes = Math.floor(diffMs / 60000);
+      const gun = Math.floor(diffMinutes / (60 * 24));
+      const saat = Math.floor((diffMinutes % (60 * 24)) / 60);
+      const dakika = diffMinutes % 60;
+      geriSayimHtml = `<p><strong>Kalan Süre:</strong> ${gun}g ${saat}s ${dakika}d</p>`;
+    }
     
     return `
       <div class="etkinlik-card" data-type="${etkinlik.etkinlik_turu}">
@@ -174,6 +223,7 @@ function displayEtkinlikler(etkinlikler) {
           <p><strong>Başlangıç:</strong> <span class="etkinlik-date">${formatTarih(baslangicTarihi)}</span></p>
           ${bitisTarihi ? `<p><strong>Bitiş:</strong> <span class="etkinlik-date">${formatTarih(bitisTarihi)}</span></p>` : ''}
           ${etkinlik.konum ? `<p><strong>Konum:</strong> ${etkinlik.konum}</p>` : ''}
+          ${geriSayimHtml}
           ${etkinlik.aciklama ? `<p><strong>Açıklama:</strong> ${etkinlik.aciklama}</p>` : ''}
         </div>
         <div style="margin-top: 10px; font-size: 12px; color: #999;">
@@ -183,6 +233,61 @@ function displayEtkinlikler(etkinlikler) {
       </div>
     `;
   }).join('');
+}
+
+// Kullanıcının "katılacağım" dediği kulüp etkinliklerini çek
+async function fetchKatilacagimEtkinlikler() {
+  const container = document.getElementById('katilacagim-container');
+  container.innerHTML = '<p class="loading">⏳ Kulüp etkinliklerin yükleniyor...</p>';
+
+  try {
+    const response = await fetch(`${ONERI_API_URL}/kullanici-tercihleri/${CURRENT_USER_ID}`);
+    const data = await response.json();
+
+    if (!data.success || !data.data || data.data.length === 0) {
+      container.innerHTML = '<p style="color:#999;">Henüz katılacağım olarak işaretlediğin bir kulüp etkinliği yok.</p>';
+      return;
+    }
+
+    const now = new Date();
+    const gelecektekiler = data.data.filter(item => {
+      const t = new Date(item.etkinlik.tarih);
+      return item.durum === 'katilacak' && t > now;
+    });
+
+    if (gelecektekiler.length === 0) {
+      container.innerHTML = '<p style="color:#999;">Gelecekte tarihli katılacağın kulüp etkinliği bulunmuyor.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    gelecektekiler.forEach(item => {
+      const t = new Date(item.etkinlik.tarih);
+      const diffMs = t - now;
+      const diffMinutes = Math.floor(diffMs / 60000);
+      const gun = Math.floor(diffMinutes / (60 * 24));
+      const saat = Math.floor((diffMinutes % (60 * 24)) / 60);
+      const dakika = diffMinutes % 60;
+
+      const div = document.createElement('div');
+      div.className = 'katilacagim-card';
+      div.innerHTML = `
+        <div>
+          <div class="katilacagim-baslik">${item.etkinlik.etkinlik_adi}</div>
+          <div class="katilacagim-detay">
+            ${t.toLocaleString('tr-TR')} | ${item.etkinlik.kulup_adi || 'Kulüp Etkinliği'}
+          </div>
+        </div>
+        <div class="katilacagim-geri-sayim">
+          Kalan: ${gun}g ${saat}s ${dakika}d
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    console.error('Katılacağım etkinlikler yüklenemedi:', e);
+    container.innerHTML = '<p style="color:#c41e3a;">Kulüp etkinliklerin yüklenirken bir hata oluştu.</p>';
+  }
 }
 
 // Tarih formatlama

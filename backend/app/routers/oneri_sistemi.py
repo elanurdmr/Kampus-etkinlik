@@ -2,13 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import (
-    IlgiAlani, KullaniciIlgiAlani, Kulup, KulupEtkinligi, 
-    KullaniciEtkinlikTercihi, Kullanici
+    IlgiAlani,
+    KullaniciIlgiAlani,
+    Kulup,
+    KulupEtkinligi,
+    KullaniciEtkinlikTercihi,
+    Kullanici,
 )
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from ai_oneri_engine import oneri_motoru  
+from ai_oneri_engine import oneri_motoru
 
 router = APIRouter(prefix="/api/oneri", tags=["Öneri Sistemi"])
 
@@ -334,4 +338,58 @@ def get_kullanici_tercihleri(kullanici_id: int, db: Session = Depends(get_db)):
             for tercih, etkinlik, kulup in tercihler
         ]
     }
+
+
+@router.get("/kullanici-yaklasan/{kullanici_id}")
+def kullanici_yaklasan_etkinlikler(kullanici_id: int, db: Session = Depends(get_db)):
+    """
+    Kullanıcının 'katilacak' olarak işaretlediği en yakın kulüp etkinliklerini ve geri sayımı döner.
+    Akademik takvimden bağımsız olarak sadece kulüp etkinlik tercihleri baz alınır.
+    """
+    simdi = datetime.now()
+
+    # Kullanıcının katılacağı etkinlik tercihlerini getir (sadece gelecekteki etkinlikler)
+    tercihler = (
+        db.query(KullaniciEtkinlikTercihi, KulupEtkinligi, Kulup)
+        .join(KulupEtkinligi, KullaniciEtkinlikTercihi.etkinlik_id == KulupEtkinligi.id)
+        .join(Kulup, KulupEtkinligi.kulup_id == Kulup.id)
+        .filter(
+            KullaniciEtkinlikTercihi.kullanici_id == kullanici_id,
+            KullaniciEtkinlikTercihi.durum == "katilacak",
+            KulupEtkinligi.tarih >= simdi,
+            KulupEtkinligi.aktif == True,  # noqa: E712
+        )
+        .order_by(KulupEtkinligi.tarih.asc())
+        .all()
+    )
+
+    etkinlik_listesi = []
+    for tercih, etkinlik, kulup in tercihler:
+        kalan = etkinlik.tarih - simdi
+        kalan_saniye = int(kalan.total_seconds())
+        if kalan_saniye < 0:
+            continue
+        kalan_gun = kalan_saniye // 86400
+        kalan_saat = (kalan_saniye % 86400) // 3600
+        kalan_dakika = (kalan_saniye % 3600) // 60
+
+        etkinlik_listesi.append(
+            {
+                "etkinlik_id": etkinlik.id,
+                "etkinlik_adi": etkinlik.etkinlik_adi,
+                "kulup_adi": kulup.kulup_adi,
+                "tarih": etkinlik.tarih.isoformat(),
+                "konum": etkinlik.konum,
+                "kalan_gun": kalan_gun,
+                "kalan_saat": kalan_saat,
+                "kalan_dakika": kalan_dakika,
+            }
+        )
+
+    return {
+        "success": True,
+        "toplam": len(etkinlik_listesi),
+        "etkinlikler": etkinlik_listesi,
+    }
+
 

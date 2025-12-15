@@ -2,8 +2,8 @@
 session_start();
 include "db.php";
 $currentPage = basename($_SERVER['PHP_SELF']);
-// Demo kullanıcı ID'si
-$kullanici_id = 1; // Gerek sistemde session'dan alınacak
+// Giriş yapmış kullanıcının ID'si (yoksa demo 1)
+$kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
 ?>
 <!DOCTYPE html>
 <html lang="tr">
