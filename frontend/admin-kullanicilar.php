@@ -2,8 +2,34 @@
 session_start();
 include "auth_helper.php";
 requireRole('admin');
+include "db.php";
 
 $currentPage = basename($_SERVER['PHP_SELF']);
+
+// Kulüp başkanı yetkisi güncelleme
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kullanici_id'], $_POST['action'])) {
+  $kullaniciId = (int)$_POST['kullanici_id'];
+  $action = $_POST['action'] === 'kulup_baskani_yap' ? 1 : 0;
+
+  $stmt = $conn->prepare("UPDATE kullanicilar SET kulup_baskani = ? WHERE id = ?");
+  if ($stmt) {
+    $stmt->bind_param("ii", $action, $kullaniciId);
+    if ($stmt->execute()) {
+      $message = $action ? "Kulüp başkanı yetkisi verildi." : "Kulüp başkanı yetkisi kaldırıldı.";
+    }
+    $stmt->close();
+  }
+}
+
+// Tüm kullanıcıları çek
+$kullanicilar = [];
+$result = $conn->query("SELECT * FROM kullanicilar ORDER BY id ASC");
+if ($result && $result->num_rows > 0) {
+  while ($row = $result->fetch_assoc()) {
+    $kullanicilar[] = $row;
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -73,6 +99,30 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     .badge-admin { background: #28a745; color: white; }
     .badge-ogretmen { background: #0066cc; color: white; }
     .badge-ogrenci { background: #6c757d; color: white; }
+    .badge-kulup { background: #ff9800; color: white; }
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 0.8em;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-yes {
+      background: #ff9800;
+      color: #fff;
+    }
+    .btn-no {
+      background: #e0e0e0;
+      color: #333;
+    }
+    .flash-message {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -86,6 +136,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
   <div class="content-box">
     <h2>Tüm Kullanıcılar</h2>
+    <?php if (!empty($message)): ?>
+      <div class="flash-message"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
     <table>
       <thead>
         <tr>
@@ -95,87 +148,58 @@ $currentPage = basename($_SERVER['PHP_SELF']);
           <th>Öğrenci No</th>
           <th>Rol</th>
           <th>Durum</th>
+          <th>Kulüp Başkanı</th>
         </tr>
       </thead>
-      <tbody id="kullanicilarTable">
-        <tr>
-          <td colspan="6" style="text-align: center; padding: 40px;">
-            Yükleniyor...
-          </td>
-        </tr>
+      <tbody>
+        <?php if (count($kullanicilar) === 0): ?>
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+              Henüz kullanıcı bulunmuyor.
+            </td>
+          </tr>
+        <?php else: ?>
+          <?php foreach ($kullanicilar as $kullanici): ?>
+            <?php
+              $rol = $kullanici['rol'] ?? 'ogrenci';
+              $rolClass = $rol === 'admin' ? 'badge-admin' : ($rol === 'ogretmen' ? 'badge-ogretmen' : 'badge-ogrenci');
+              $rolText = $rol === 'admin' ? 'Admin' : ($rol === 'ogretmen' ? 'Öğretmen' : 'Öğrenci');
+              $kulupBaskani = !empty($kullanici['kulup_baskani']);
+            ?>
+            <tr>
+              <td><?php echo (int)$kullanici['id']; ?></td>
+              <td><?php echo htmlspecialchars($kullanici['ad'] . ' ' . $kullanici['soyad']); ?></td>
+              <td><?php echo htmlspecialchars($kullanici['email']); ?></td>
+              <td><?php echo htmlspecialchars($kullanici['ogrenci_no'] ?? '-'); ?></td>
+              <td><span class="badge <?php echo $rolClass; ?>"><?php echo $rolText; ?></span></td>
+              <td><?php echo !empty($kullanici['aktif']) ? 'Aktif' : 'Pasif'; ?></td>
+              <td>
+                <?php if ($rol === 'ogrenci'): ?>
+                  <?php if ($kulupBaskani): ?>
+                    <span class="badge badge-kulup">Kulüp Başkanı</span>
+                    <form method="POST" style="display:inline;">
+                      <input type="hidden" name="kullanici_id" value="<?php echo (int)$kullanici['id']; ?>">
+                      <input type="hidden" name="action" value="kulup_baskani_kaldir">
+                      <button type="submit" class="btn-small btn-no">Yetkiyi Kaldır</button>
+                    </form>
+                  <?php else: ?>
+                    <form method="POST" style="display:inline;">
+                      <input type="hidden" name="kullanici_id" value="<?php echo (int)$kullanici['id']; ?>">
+                      <input type="hidden" name="action" value="kulup_baskani_yap">
+                      <button type="submit" class="btn-small btn-yes">Kulüp Başkanı Yap</button>
+                    </form>
+                  <?php endif; ?>
+                <?php else: ?>
+                  -
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </tbody>
     </table>
   </div>
 </div>
-
-<script>
-const API_BASE_URL = 'http://localhost:8000/api';
-
-// Kullanıcıları yükle
-async function yukleKullanicilar() {
-  try {
-    // Backend'de kullanıcı listesi endpoint'i yoksa, veritabanından çek
-    const response = await fetch(`${API_BASE_URL}/kullanicilar`);
-    if (response.ok) {
-      const kullanicilar = await response.json();
-      renderKullanicilar(kullanicilar);
-    } else {
-      // API yoksa placeholder göster
-      document.getElementById('kullanicilarTable').innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
-            Kullanıcı listesi API'si henüz hazır değil. Veritabanından manuel kontrol edebilirsiniz.
-          </td>
-        </tr>
-      `;
-    }
-  } catch (error) {
-    console.error('Hata:', error);
-    document.getElementById('kullanicilarTable').innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">
-          Veri yüklenirken hata oluştu.
-        </td>
-      </tr>
-    `;
-  }
-}
-
-function renderKullanicilar(kullanicilar) {
-  if (kullanicilar.length === 0) {
-    document.getElementById('kullanicilarTable').innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align: center; padding: 40px;">
-          Henüz kullanıcı bulunmuyor.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-  
-  let html = '';
-  kullanicilar.forEach(kullanici => {
-    const rolClass = `badge-${kullanici.rol || 'ogrenci'}`;
-    const rolText = kullanici.rol === 'admin' ? 'Admin' : 
-                   (kullanici.rol === 'ogretmen' ? 'Öğretmen' : 'Öğrenci');
-    
-    html += `
-      <tr>
-        <td>${kullanici.id}</td>
-        <td>${kullanici.ad} ${kullanici.soyad}</td>
-        <td>${kullanici.email}</td>
-        <td>${kullanici.ogrenci_no || '-'}</td>
-        <td><span class="badge ${rolClass}">${rolText}</span></td>
-        <td>${kullanici.aktif ? 'Aktif' : 'Pasif'}</td>
-      </tr>
-    `;
-  });
-  
-  document.getElementById('kullanicilarTable').innerHTML = html;
-}
-
-document.addEventListener('DOMContentLoaded', yukleKullanicilar);
-</script>
 
 <?php include "footer.php"; ?>
 

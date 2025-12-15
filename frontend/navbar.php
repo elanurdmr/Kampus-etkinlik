@@ -172,7 +172,7 @@ if (!isset($currentPage)) {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 10px;
   }
   
@@ -762,6 +762,12 @@ if (!isset($currentPage)) {
       <span class="sidebar-menu-icon">•</span>
       <span><?= t('Etkinlik Yönetimi', 'Event Management') ?></span>
     </a></li>
+    <?php if (isset($_SESSION['user_id']) && (isAdmin() || isKulupBaskani())): ?>
+    <li><a href="qr-kod-olustur.php" class="<?= $currentPage == 'qr-kod-olustur.php' ? 'active' : '' ?>">
+      <span class="sidebar-menu-icon">•</span>
+      <span><?= t('QR Kod Oluştur', 'Generate QR Code') ?></span>
+    </a></li>
+    <?php endif; ?>
     <li><a href="ilgi-alanlari.php" class="<?= $currentPage == 'ilgi-alanlari.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
       <span><?= t('İlgi Alanlarım', 'My Interests') ?></span>
@@ -890,7 +896,13 @@ if (!isset($currentPage)) {
                 <?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>
               </div>
             </div>
-            
+            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
+              <a href="admin-panel.php" class="user-menu-item">
+                <span class="user-menu-icon">•</span>
+                <span><?= t('Admin Paneli', 'Admin Panel') ?></span>
+              </a>
+            <?php endif; ?>
+
             <a href="profile.php" class="user-menu-item">
               <span class="user-menu-icon">•</span>
               <span><?= t('Profilim', 'My Profile') ?></span>

@@ -19,11 +19,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['ad'] = $user['ad'];
             $_SESSION['soyad'] = $user['soyad'];
             $_SESSION['email'] = $user['email'];
-            $_SESSION['rol'] = 'ogrenci'; // Herkes öğrenci olarak giriş yapar
+            $_SESSION['rol'] = $user['rol'] ?? 'ogrenci';
             $_SESSION['ogrenci_no'] = $user['ogrenci_no'] ?? '';
+            $_SESSION['kulup_baskani'] = !empty($user['kulup_baskani']);
             
-            // Ana sayfaya yönlendir
-            header("Location: index.php");
+            // Rolüne göre uygun panele yönlendir
+            if ($_SESSION['rol'] === 'admin') {
+                header("Location: admin-panel.php");
+            } elseif ($_SESSION['rol'] === 'ogretmen') {
+                header("Location: ogretmen-panel.php");
+            } else {
+                header("Location: ogrenci-panel.php");
+            }
             exit;
         } else {
             // Şifre alanı yoksa veya yanlışsa, eski ogrenciler tablosunu kontrol et
@@ -32,23 +39,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt2->execute();
             $result2 = $stmt2->get_result();
             
-            if ($result2->num_rows > 0) {
-                $oldUser = $result2->fetch_assoc();
-                if (password_verify($sifre, $oldUser['sifre'])) {
-                    $_SESSION['user_id'] = $oldUser['ogrenci_id'];
-                    $_SESSION['ad'] = $oldUser['ad'];
-                    $_SESSION['soyad'] = $oldUser['soyad'];
-                    $_SESSION['email'] = $oldUser['eposta'];
-                    $_SESSION['rol'] = 'ogrenci';
-                    $_SESSION['ogrenci_no'] = $oldUser['ogrenci_no'] ?? '';
-                    header("Location: index.php");
-                    exit;
+                if ($result2->num_rows > 0) {
+                    $oldUser = $result2->fetch_assoc();
+                    if (password_verify($sifre, $oldUser['sifre'])) {
+                        $_SESSION['user_id'] = $oldUser['ogrenci_id'];
+                        $_SESSION['ad'] = $oldUser['ad'];
+                        $_SESSION['soyad'] = $oldUser['soyad'];
+                        $_SESSION['email'] = $oldUser['eposta'];
+                        $_SESSION['rol'] = 'ogrenci';
+                        $_SESSION['ogrenci_no'] = $oldUser['ogrenci_no'] ?? '';
+                        $_SESSION['kulup_baskani'] = false;
+                        header("Location: ogrenci-panel.php");
+                        exit;
+                    } else {
+                        $error = "Şifre yanlış!";
+                    }
                 } else {
                     $error = "Şifre yanlış!";
                 }
-            } else {
-                $error = "Şifre yanlış!";
-            }
         }
     } else {
         // Eski ogrenciler tablosunda ara (geriye dönük uyumluluk)
@@ -66,7 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['email'] = $user['eposta'];
                 $_SESSION['rol'] = 'ogrenci';
                 $_SESSION['ogrenci_no'] = $user['ogrenci_no'] ?? '';
-                header("Location: index.php");
+                $_SESSION['kulup_baskani'] = false;
+                header("Location: ogrenci-panel.php");
                 exit;
             } else {
                 $error = "Şifre yanlış!";

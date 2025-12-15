@@ -25,3 +25,4 @@ function t(string $tr, string $en): string {
     return $currentLang === 'en' ? $en : $tr;
 }
 
+

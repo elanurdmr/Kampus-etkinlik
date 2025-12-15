@@ -150,13 +150,47 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <script>
 const API_BASE_URL = 'http://localhost:8000/api';
-const ogretmenId = <?php echo $_SESSION['user_id']; ?>;
+const ogretmenEmail = "<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email'], ENT_QUOTES) : ''; ?>";
+let ogretimUyesiId = null;
+
+// Önce ogretim_uyesi_id'yi bul, sonra istatistikleri yükle
+async function initOgretmenPanel() {
+  try {
+    if (!ogretmenEmail) {
+      console.warn('Öğretmen emaili bulunamadı');
+      return;
+    }
+
+    const res = await fetch(`${API_BASE_URL}/randevu/ogretim-uyeleri`);
+    if (!res.ok) {
+      console.error('Öğretim üyeleri alınamadı', res.status);
+      return;
+    }
+
+    const ogretimUyeleri = await res.json();
+    const eslesen = ogretimUyeleri.find(u => (u.email || '').toLowerCase() === ogretmenEmail.toLowerCase());
+
+    if (!eslesen) {
+      console.warn('Bu email ile eşleşen öğretim üyesi bulunamadı:', ogretmenEmail);
+      return;
+    }
+
+    ogretimUyesiId = eslesen.id;
+    await yukleIstatistikler();
+  } catch (error) {
+    console.error('initOgretmenPanel hatası:', error);
+  }
+}
 
 // İstatistikleri yükle
 async function yukleIstatistikler() {
   try {
-    // Öğretmen randevularını getir
-    const response = await fetch(`${API_BASE_URL}/randevu/ogretim-uyesi/${ogretmenId}/randevular`);
+    if (!ogretimUyesiId) {
+      return; // henüz eşleşme yapılmadı
+    }
+
+    // Doğru endpoint'i kullan
+    const response = await fetch(`${API_BASE_URL}/randevu/randevular?ogretim_uyesi_id=${ogretimUyesiId}`);
     if (response.ok) {
       const randevular = await response.json();
       const bekleyen = randevular.filter(r => r.durum === 'bekliyor').length;
@@ -171,7 +205,7 @@ async function yukleIstatistikler() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', yukleIstatistikler);
+document.addEventListener('DOMContentLoaded', initOgretmenPanel);
 </script>
 
 <?php include "footer.php"; ?>

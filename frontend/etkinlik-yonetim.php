@@ -1,6 +1,18 @@
 <?php
-include "db.php";
 require_once "lang.php";
+include "auth_helper.php";
+
+// Sadece admin veya kulüp başkanı (öğrenci) erişebilsin
+if (!isset($_SESSION['user_id'])) {
+  header("Location: login.php");
+  exit;
+}
+
+if (!isAdmin() && !isKulupBaskani()) {
+  redirectToPanel();
+}
+
+include "db.php";
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang === 'en' ? 'en' : 'tr' ?>">
