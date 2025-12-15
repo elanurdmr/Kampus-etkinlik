@@ -1,7 +1,24 @@
 <?php
-session_start();
-include "auth_helper.php";
-requireRole('admin');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Output buffering başlat
+ob_start();
+
+// Session başlat
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+try {
+    include "db.php";
+    require_once "auth_helper.php";
+    require_once "lang.php";
+    
+    requireRole('admin');
+} catch (Exception $e) {
+    die("Hata: " . $e->getMessage());
+}
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
@@ -119,7 +136,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <div class="panel-container">
   <div class="panel-header">
     <h1>Admin Paneli</h1>
-    <p>Hoş geldiniz, <?php echo htmlspecialchars($_SESSION['ad'] . ' ' . $_SESSION['soyad']); ?></p>
+    <p>Hoş geldiniz, <?php echo htmlspecialchars(($_SESSION['ad'] ?? '') . ' ' . ($_SESSION['soyad'] ?? '')); ?></p>
   </div>
 
   <div class="stats-grid">
@@ -199,3 +216,4 @@ document.addEventListener('DOMContentLoaded', yukleIstatistikler);
 
 </body>
 </html>
+<?php ob_end_flush(); ?>

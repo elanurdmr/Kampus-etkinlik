@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once "lang.php";
-include "auth_helper.php";
+require_once "auth_helper.php";
 
 // $currentPage değişkeni yoksa tanımla
 if (!isset($currentPage)) {

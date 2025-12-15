@@ -248,7 +248,7 @@ $kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
 
 <div class="randevular-container">
   <div class="page-header">
-    <h2>📅 Randevularım</h2>
+    <h2>Randevularım</h2>
     <a href="randevu-olustur.php" class="btn btn-primary">+ Yeni Randevu</a>
   </div>
 
@@ -280,6 +280,16 @@ if (typeof window.kullaniciId === 'undefined') {
 // Sayfa yüklendiğinde randevuları yükle
 document.addEventListener('DOMContentLoaded', function() {
   randevulariYukle();
+  
+  // Her 30 saniyede bir randevuları yenile (onaylanmış randevular için)
+  setInterval(randevulariYukle, 30000);
+  
+  // Sayfa görünür olduğunda randevuları yenile (tab değiştiğinde)
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      randevulariYukle();
+    }
+  });
 });
 
 // Randevuları yükle
@@ -291,16 +301,24 @@ async function randevulariYukle() {
   
   try {
     let url = `${API_BASE_URL}/ogrenci/${window.kullaniciId}/randevular`;
+    console.log('Randevular yükleniyor, URL:', url);
     const response = await fetch(url);
     
-    if (!response.ok) throw new Error('Randevular yüklenemedi');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Randevu yükleme hatası:', response.status, errorText);
+      throw new Error(`Randevular yüklenemedi: ${response.status}`);
+    }
     
     const randevular = await response.json();
+    console.log('Yüklenen randevular:', randevular);
+    console.log('Toplam randevu sayısı:', randevular.length);
     
     // Durum filtresi uygula
     let filtrelenmisRandevular = randevular;
     if (durum) {
       filtrelenmisRandevular = randevular.filter(r => r.durum === durum);
+      console.log(`Durum filtresi (${durum}) uygulandı, filtrelenmiş sayı:`, filtrelenmisRandevular.length);
     }
     
     // Tarihe göre sırala (gelecek randevular önce)
@@ -383,11 +401,12 @@ async function randevulariYukle() {
     
     container.innerHTML = html;
   } catch (error) {
-    console.error('Hata:', error);
+    console.error('Randevu yükleme hatası:', error);
     container.innerHTML = `
       <div class="empty-state">
         <h3>Hata</h3>
-        <p>Randevular yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.</p>
+        <p>Randevular yüklenirken bir hata oluştu: ${error.message}</p>
+        <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Lütfen sayfayı yenileyin veya konsolu kontrol edin.</p>
       </div>
     `;
   }

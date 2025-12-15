@@ -162,16 +162,16 @@ let secilenIlgiAlanlar = new Set();
 
 // Icon eşleştirmeleri
 const iconlar = {
-  'Spor': '⚽️',
-  'Müzik': '🎵',
-  'Teknoloji': '💻',
-  'Sanat': '🎨',
-  'Edebiyat': '📚',
-  'Sinema': '🎬',
-  'Tiyatro': '🎭',
-  'Fotoğrafçılık': '📷',
-  'Sosyal Sorumluluk': '🤝',
-  'Girişimcilik': '💼'
+  'Spor': '',
+  'Müzik': '',
+  'Teknoloji': '',
+  'Sanat': '',
+  'Edebiyat': '',
+  'Sinema': '',
+  'Tiyatro': '',
+  'Fotoğrafçılık': '',
+  'Sosyal Sorumluluk': '',
+  'Girişimcilik': ''
 };
 
 // Sayfa yüklendiğinde
@@ -190,7 +190,7 @@ async function yukleIlgiAlanlari() {
       grid.innerHTML = '';
       
       data.data.forEach(alan => {
-        const icon = iconlar[alan.alan_adi] || '⭐️';
+        const icon = iconlar[alan.alan_adi] || '';
         const div = document.createElement('div');
         div.className = 'ilgi-item';
         div.dataset.id = alan.id;

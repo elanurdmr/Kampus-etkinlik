@@ -455,7 +455,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       
       <div class="action-buttons">
         <button class="btn btn-primary" onclick="randevuSayfasinaGit()">
-          📅 Randevu Al
+          Randevu Al
         </button>
       </div>
     </div>
@@ -570,7 +570,7 @@ function ogretimUyeleriniGoster(liste) {
         </div>
         
         <div class="program-preview">
-          <h4>📅 Çalışma Günleri: ${toplamGun > 0 ? toplamGun + ' gün' : 'Program yok'}</h4>
+          <h4>Çalışma Günleri: ${toplamGun > 0 ? toplamGun + ' gün' : 'Program yok'}</h4>
           ${programOnizleme(program)}
         </div>
       </div>

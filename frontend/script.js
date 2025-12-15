@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (res.ok) {
-          alert(`${ad} ${soyad}, <?= t('katılımınız başarıyla alındı ve puanınıza eklendi!', 'your participation has been recorded and points added!') ?> 🎉`);
+          alert(`${ad} ${soyad}, <?= t('katılımınız başarıyla alındı ve puanınıza eklendi!', 'your participation has been recorded and points added!') ?>`);
           popup.style.display = "none";
         } else {
           const data = await res.json().catch(() => ({}));

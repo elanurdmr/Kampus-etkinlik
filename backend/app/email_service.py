@@ -38,7 +38,7 @@ class EmailService:
         <html>
           <body style="font-family: Arial, sans-serif; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; border: 2px solid #b30000; border-radius: 10px; padding: 20px;">
-              <h2 style="color: #b30000; text-align: center;">📅 Randevu Hatırlatması</h2>
+              <h2 style="color: #b30000; text-align: center;">Randevu Hatırlatması</h2>
               
               <p>Merhaba <strong>{ogrenci_adi}</strong>,</p>
               
@@ -81,7 +81,7 @@ class EmailService:
             durum_mesaj = "randevunuz onaylanmıştır."
             renk = "#28a745"
         elif durum == "reddedildi":
-            baslik = "❌ Randevunuz Reddedildi"
+            baslik = "Randevunuz Reddedildi"
             durum_mesaj = "randevunuz reddedilmiştir."
             renk = "#dc3545"
         else:

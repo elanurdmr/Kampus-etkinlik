@@ -437,7 +437,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <div class="takvim-container">
   <div class="page-header">
     <h2>
-      <span>📅</span>
       Öğretim Üyesi Randevu Takvimi
     </h2>
     <p>Öğretim üyelerinin randevu takvimlerini görüntüleyin ve yönetin</p>
@@ -495,14 +494,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       
       <div class="form-group">
         <label style="opacity: 0;">Ara</label>
-        <button class="btn btn-primary" onclick="takvimiYukle()">🔍 Ara</button>
+        <button class="btn btn-primary" onclick="takvimiYukle()">Ara</button>
       </div>
     </div>
   </div>
 
   <div class="view-toggle" id="viewToggle" style="display: none;">
-    <button class="toggle-btn active" onclick="changeView('grid')">📊 Grid Görünüm</button>
-    <button class="toggle-btn" onclick="changeView('timeline')">📅 Zaman Çizelgesi</button>
+    <button class="toggle-btn active" onclick="changeView('grid')">Grid Görünüm</button>
+    <button class="toggle-btn" onclick="changeView('timeline')">Zaman Çizelgesi</button>
   </div>
 
   <div id="loadingState" class="loading">
@@ -681,7 +680,7 @@ function showGridView(randevular) {
           </div>
           
           <div class="info-row">
-            <span class="info-icon">📅</span>
+            <span class="info-icon"></span>
             <div class="info-text">
               <span class="info-label">Tarih</span>
               <span class="info-value">${tarih}</span>
@@ -689,7 +688,7 @@ function showGridView(randevular) {
           </div>
           
           <div class="info-row">
-            <span class="info-icon">⏰</span>
+            <span class="info-icon"></span>
             <div class="info-text">
               <span class="info-label">Saat</span>
               <span class="info-value">${saat}</span>
@@ -708,7 +707,7 @@ function showGridView(randevular) {
           
           ${randevu.aciklama ? `
             <div class="info-row">
-              <span class="info-icon">📝</span>
+              <span class="info-icon"></span>
               <div class="info-text">
                 <span class="info-label">Açıklama</span>
                 <span class="info-value">${randevu.aciklama}</span>
