@@ -1,11 +1,22 @@
 <?php 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('log_errors', 1);
 
-session_start();
-include "db.php";
-require_once "lang.php";
-require_once "kulup_etkinlikleri_mock.php";
+// Output buffering başlat
+ob_start();
+
+try {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    include "db.php";
+    require_once "lang.php";
+    require_once "kulup_etkinlikleri_mock.php";
+} catch (Exception $e) {
+    die("Hata: " . $e->getMessage());
+}
 
 // Aktif sayfa ismini tespit ediyoruz
 $currentPage = basename($_SERVER['PHP_SELF']);
@@ -238,3 +249,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+<?php ob_end_flush(); ?>

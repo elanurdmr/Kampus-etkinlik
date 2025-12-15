@@ -1,5 +1,11 @@
 <?php
-require_once __DIR__ . '/lang.php';
+// Session başlat (eğer başlatılmamışsa)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once "lang.php";
+include "auth_helper.php";
 
 // $currentPage değişkeni yoksa tanımla
 if (!isset($currentPage)) {
