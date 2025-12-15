@@ -759,7 +759,7 @@ if (!isset($currentPage)) {
     </a></li>
     <li><a href="akademik-takvim.php" class="<?= $currentPage == 'akademik-takvim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Takvim</span>
+      <span>Etkinlik Takvimim</span>
     </a></li>
     <li><a href="etkinlik-yonetim.php" class="<?= $currentPage == 'etkinlik-yonetim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>

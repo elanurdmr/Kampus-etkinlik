@@ -2,8 +2,8 @@
 session_start();
 include "db.php";
 $currentPage = basename($_SERVER['PHP_SELF']);
-// Demo kullanıcı ID'si
-$kullanici_id = 1; // Gerek sistemde session'dan alınacak
+// Giriş yapmış kullanıcının ID'si (yoksa demo 1)
+$kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -158,13 +158,13 @@ let secilenIlgiAlanlar = new Set();
 
 // Icon eşleştirmeleri
 const iconlar = {
-  'Spor': '',
-  'Müzik': '',
-  'Teknoloji': '',
-  'Sanat': '',
-  'Edebiyat': '',
-  'Sinema': '',
-  'Tiyatro': '',
+  'Spor': '⚽️',
+  'Müzik': '🎵',
+  'Teknoloji': '💻',
+  'Sanat': '🎨',
+  'Edebiyat': '📚',
+  'Sinema': '🎬',
+  'Tiyatro': '🎭',
   'Fotoğrafçılık': '📷',
   'Sosyal Sorumluluk': '🤝',
   'Girişimcilik': '💼'
@@ -186,7 +186,7 @@ async function yukleIlgiAlanlari() {
       grid.innerHTML = '';
       
       data.data.forEach(alan => {
-        const icon = iconlar[alan.alan_adi] || 'ğ';
+        const icon = iconlar[alan.alan_adi] || '⭐️';
         const div = document.createElement('div');
         div.className = 'ilgi-item';
         div.dataset.id = alan.id;
