@@ -133,17 +133,73 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <script>
 const API_BASE_URL = 'http://localhost:8000/api';
-const ogretmenId = <?php echo $_SESSION['user_id']; ?>;
+// Giriş yapan öğretmenin email'ini backend'den al
+const ogretmenEmail = "<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email'], ENT_QUOTES) : ''; ?>";
+let ogretimUyesiId = null;
+
+// Önce bu kullanıcıya karşılık gelen ogretim_uyesi_id'yi bul
+async function initOgretmenRandevular() {
+  const listDiv = document.getElementById('randevularList');
+  try {
+    if (!ogretmenEmail) {
+      listDiv.innerHTML = `
+        <p style="text-align: center; padding: 40px; color: #dc3545;">
+          Öğretmen e-posta bilgisi bulunamadı. Lütfen tekrar giriş yapın.
+        </p>
+      `;
+      return;
+    }
+
+    const res = await fetch(`${API_BASE_URL}/randevu/ogretim-uyeleri`);
+    if (!res.ok) {
+      listDiv.innerHTML = `
+        <p style="text-align: center; padding: 40px; color: #dc3545;">
+          Öğretim üyesi listesi yüklenemedi (HTTP ${res.status}).
+        </p>
+      `;
+      return;
+    }
+
+    const ogretimUyeleri = await res.json();
+    const eslesen = ogretimUyeleri.find(u => (u.email || '').toLowerCase() === ogretmenEmail.toLowerCase());
+
+    if (!eslesen) {
+      listDiv.innerHTML = `
+        <p style="text-align: center; padding: 40px; color: #dc3545;">
+          Bu kullanıcı için öğretim üyesi kaydı bulunamadı.<br>
+          Lütfen admin panelinden aynı e-posta ile bir öğretim üyesi kaydı oluşturun.
+        </p>
+      `;
+      return;
+    }
+
+    ogretimUyesiId = eslesen.id;
+    await yukleRandevular();
+  } catch (error) {
+    console.error('initOgretmenRandevular hatası:', error);
+    listDiv.innerHTML = `
+      <p style="text-align: center; padding: 40px; color: #dc3545;">
+        Randevular yüklenirken bir hata oluştu.
+      </p>
+    `;
+  }
+}
 
 // Randevuları yükle
 async function yukleRandevular() {
+  const listDiv = document.getElementById('randevularList');
   try {
-    const response = await fetch(`${API_BASE_URL}/randevu/ogretim-uyesi/${ogretmenId}/randevular`);
+    if (!ogretimUyesiId) {
+      // henüz eşleşme yapılmadı
+      return;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/randevu/randevular?ogretim_uyesi_id=${ogretimUyesiId}`);
     if (response.ok) {
       const randevular = await response.json();
       renderRandevular(randevular);
     } else {
-      document.getElementById('randevularList').innerHTML = `
+      listDiv.innerHTML = `
         <p style="text-align: center; padding: 40px; color: #dc3545;">
           Randevular yüklenemedi.
         </p>
@@ -151,7 +207,7 @@ async function yukleRandevular() {
     }
   } catch (error) {
     console.error('Hata:', error);
-    document.getElementById('randevularList').innerHTML = `
+    listDiv.innerHTML = `
       <p style="text-align: center; padding: 40px; color: #dc3545;">
         Veri yüklenirken hata oluştu.
       </p>
@@ -225,7 +281,7 @@ async function randevuDurumGuncelle(randevuId, yeniDurum) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', yukleRandevular);
+document.addEventListener('DOMContentLoaded', initOgretmenRandevular);
 </script>
 
 <?php include "footer.php"; ?>
