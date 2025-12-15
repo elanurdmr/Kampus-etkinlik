@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db.php";
+require_once "lang.php";
 $currentPage = basename($_SERVER['PHP_SELF']);
 // Giriş yapmış kullanıcının ID'si (yoksa demo 1)
 $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
@@ -11,7 +12,7 @@ $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Etkinlik nerileri | Kamps Sistemi</title>
+  <title><?= t('Etkinlik Önerileri | Kampüs Sistemi', 'Event Suggestions | Campus System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .oneriler-container {
@@ -255,8 +256,10 @@ $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
 <?php include "navbar.php"; ?>
 
 <main class="oneriler-container">
-  <h1 class="baslik">Senin İçin Önerilen Etkinlikler</h1>
-  <p class="alt-baslik">İlgi alanlarına göre özel olarak seçildi!</p>
+  <h1 class="baslik"><?= t('Senin İçin Önerilen Etkinlikler', 'Recommended Events for You') ?></h1>
+  <p class="alt-baslik">
+    <?= t('İlgi alanlarına göre özel olarak seçildi!', 'Carefully selected based on your interests!') ?>
+  </p>
 
   <div id="etkinlikGrid" class="etkinlik-grid">
     <!-- JavaScript ile dolacak -->
@@ -307,10 +310,10 @@ async function yukleOneriler() {
       grid.innerHTML = `
         <div class="bos-durum">
           <div class="bos-durum-icon"></div>
-          <h3>Öneri Bulunamadı</h3>
-          <p>${data.message || 'Şu anda sana uygun etkinlik önerisi yok.'}</p>
+          <h3><?= t('Öneri Bulunamadı', 'No Suggestions Found') ?></h3>
+          <p>${data.message || '<?= t('Şu anda sana uygun etkinlik önerisi yok.', 'There are currently no suitable event suggestions for you.') ?>'}</p>
           <a href="ilgi-alanlari.php" style="color: #c41e3a; font-weight: 600;">
-            İlgi Alanlarımı Düzenle
+            <?= t('İlgi Alanlarımı Düzenle', 'Edit My Interests') ?>
           </a>
         </div>
       `;
@@ -330,19 +333,19 @@ async function yukleOneriler() {
         </div>
         <div class="etkinlik-body">
           <div class="eslesme-badge">
-            🤖 AI Skoru: ${etkinlik.eslesme_skoru}%
+            🤖 <?= t('AI Skoru', 'AI Score') ?>: ${etkinlik.eslesme_skoru}%
           </div>
           ${etkinlik.ai_analiz ? `
           <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
             <summary style="cursor: pointer; font-weight: 600; color: #c41e3a;">
-              🤖 AI Analizi
+              🤖 <?= t('AI Analizi', 'AI Analysis') ?>
             </summary>
             <div style="padding: 10px; background: #f8f9fa; border-radius: 5px; margin-top: 5px;">
-              <div>• İçerik Benzerliği: ${etkinlik.ai_analiz.icerik_benzerligi}%</div>
-              <div>• Zaman Uygunluğu: ${etkinlik.ai_analiz.zaman_skoru}%</div>
-              <div>• Davranış Uyumu: ${etkinlik.ai_analiz.davranis_skoru}%</div>
-              <div>• Popülerlik: ${etkinlik.ai_analiz.populerlik_skoru}%</div>
-              <div>• Ortak İlgi Alanı: ${etkinlik.ai_analiz.ortak_ilgi_alan_sayisi} adet</div>
+              <div>• <?= t('İçerik Benzerliği', 'Content Similarity') ?>: ${etkinlik.ai_analiz.icerik_benzerligi}%</div>
+              <div>• <?= t('Zaman Uygunluğu', 'Time Suitability') ?>: ${etkinlik.ai_analiz.zaman_skoru}%</div>
+              <div>• <?= t('Davranış Uyumu', 'Behaviour Match') ?>: ${etkinlik.ai_analiz.davranis_skoru}%</div>
+              <div>• <?= t('Popülerlik', 'Popularity') ?>: ${etkinlik.ai_analiz.populerlik_skoru}%</div>
+              <div>• <?= t('Ortak İlgi Alanı', 'Common Interests') ?>: ${etkinlik.ai_analiz.ortak_ilgi_alan_sayisi}</div>
             </div>
           </details>
           ` : ''}
@@ -367,14 +370,16 @@ async function yukleOneriler() {
           <div class="button-group">
             ${etkinlik.tercih_durumu ? `
               <div class="tercih-badge tercih-${etkinlik.tercih_durumu}">
-                ${etkinlik.tercih_durumu === 'katilacak' ? '✅ Katılacaksın' : '❌ Katılmayacaksın'}
+                ${etkinlik.tercih_durumu === 'katilacak'
+                  ? '✅ <?= t('Katılacaksın', 'You will attend') ?>'
+                  : '❌ <?= t('Katılmayacaksın', 'You will not attend') ?>'}
               </div>
             ` : `
               <button class="btn btn-katil" onclick="gosterPopup(${etkinlik.id}, '${etkinlik.etkinlik_adi}', '${etkinlik.kulup.kulup_adi}', '${tarih.toLocaleString('tr-TR')}')">
-                ✅ Katılacağım
+                ✅ <?= t('Katılacağım', 'I will attend') ?>
               </button>
               <button class="btn btn-katilma" onclick="tercihKaydet(${etkinlik.id}, 'katilmayacak')">
-                ❌ Katılmayacağım
+                ❌ <?= t('Katılmayacağım', 'I will not attend') ?>
               </button>
             `}
           </div>

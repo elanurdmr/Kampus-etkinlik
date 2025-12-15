@@ -2,6 +2,7 @@
 session_start();
 include "auth_helper.php";
 requireRole('ogrenci');
+require_once "lang.php";
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
@@ -10,7 +11,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Öğrenci Paneli | Kampüs Sistemi</title>
+  <title><?= t('Öğrenci Paneli | Kampüs Sistemi', 'Student Dashboard | Campus System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .panel-container {
@@ -118,36 +119,36 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <div class="panel-container">
   <div class="panel-header">
-    <h1>Öğrenci Paneli</h1>
-    <p>Hoş geldiniz, <?php echo htmlspecialchars($_SESSION['ad'] . ' ' . $_SESSION['soyad']); ?></p>
+    <h1><?= t('Öğrenci Paneli', 'Student Dashboard') ?></h1>
+    <p><?= t('Hoş geldiniz,', 'Welcome,') ?> <?php echo htmlspecialchars($_SESSION['ad'] . ' ' . $_SESSION['soyad']); ?></p>
   </div>
 
   <div class="stats-grid">
     <div class="stat-card">
-      <h3>Aktif Randevularım</h3>
+      <h3><?= t('Aktif Randevularım', 'Active Appointments') ?></h3>
       <p class="value" id="randevuSayisi">-</p>
     </div>
     <div class="stat-card">
-      <h3>Kütüphane Rezervasyonlarım</h3>
+      <h3><?= t('Kütüphane Rezervasyonlarım', 'Library Reservations') ?></h3>
       <p class="value" id="rezervasyonSayisi">-</p>
     </div>
     <div class="stat-card">
-      <h3>Okunmamış Bildirimler</h3>
+      <h3><?= t('Okunmamış Bildirimler', 'Unread Notifications') ?></h3>
       <p class="value" id="bildirimSayisi">-</p>
     </div>
   </div>
 
   <div class="quick-actions">
-    <h2>Hızlı İşlemler</h2>
+    <h2><?= t('Hızlı İşlemler', 'Quick Actions') ?></h2>
     <div class="actions-grid">
-      <a href="randevu-olustur.php" class="action-btn">Randevu Al</a>
-      <a href="randevularim.php" class="action-btn">Randevularım</a>
-      <a href="rezervasyon-yap.php" class="action-btn">Kütüphane Rezervasyonu</a>
-      <a href="rezervasyonlarim.php" class="action-btn">Rezervasyonlarım</a>
-      <a href="etkinlikler.php" class="action-btn">Etkinlikler</a>
-      <a href="etkinlik-onerileri.php" class="action-btn">Öneriler</a>
-      <a href="ilgi-alanlari.php" class="action-btn">İlgi Alanlarım</a>
-      <a href="bildirimler.php" class="action-btn">Bildirimler</a>
+      <a href="randevu-olustur.php" class="action-btn"><?= t('Randevu Al', 'Book Appointment') ?></a>
+      <a href="randevularim.php" class="action-btn"><?= t('Randevularım', 'My Appointments') ?></a>
+      <a href="rezervasyon-yap.php" class="action-btn"><?= t('Kütüphane Rezervasyonu', 'Library Reservation') ?></a>
+      <a href="rezervasyonlarim.php" class="action-btn"><?= t('Rezervasyonlarım', 'My Reservations') ?></a>
+      <a href="etkinlikler.php" class="action-btn"><?= t('Etkinlikler', 'Events') ?></a>
+      <a href="etkinlik-onerileri.php" class="action-btn"><?= t('Öneriler', 'Suggestions') ?></a>
+      <a href="ilgi-alanlari.php" class="action-btn"><?= t('İlgi Alanlarım', 'My Interests') ?></a>
+      <a href="bildirimler.php" class="action-btn"><?= t('Bildirimler', 'Notifications') ?></a>
       <a href="arkadaslar.php" class="action-btn">Arkadaşlarım</a>
     </div>
   </div>

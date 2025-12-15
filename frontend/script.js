@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const telefon = document.getElementById("telefon").value.trim();
 
       if (!ad || !soyad || !email || !telefon) {
-        alert("Lütfen tüm alanları doldurun!");
+        alert("<?= t('Lütfen tüm alanları doldurun!', 'Please fill in all fields!') ?>");
         return;
       }
 
@@ -86,15 +86,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (res.ok) {
-          alert(`${ad} ${soyad}, katılımınız başarıyla alındı ve puanınıza eklendi! 🎉`);
+          alert(`${ad} ${soyad}, <?= t('katılımınız başarıyla alındı ve puanınıza eklendi!', 'your participation has been recorded and points added!') ?> 🎉`);
           popup.style.display = "none";
         } else {
           const data = await res.json().catch(() => ({}));
-          alert("Katılım kaydedilirken hata oluştu: " + (data.detail || res.statusText));
+          alert("<?= t('Katılım kaydedilirken hata oluştu:', 'An error occurred while saving participation:') ?> " + (data.detail || res.statusText));
         }
       } catch (err) {
         console.error("Katılım isteği hatası:", err);
-        alert("Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+        alert("<?= t('Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.', 'Cannot reach the server. Please try again later.') ?>");
       }
     });
   }

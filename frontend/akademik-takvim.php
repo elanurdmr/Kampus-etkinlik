@@ -1,13 +1,14 @@
 <?php
 session_start();
 include "db.php";
+require_once "lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Etkinlik Takvimim | Kampüs Sistemi</title>
+  <title><?= t('Etkinlik Takvimim | Kampüs Sistemi', 'My Event Calendar | Campus System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .loading {
@@ -112,7 +113,7 @@ include "db.php";
 <?php include "navbar.php"; ?>
 
 <main class="takvim-container">
-  <h2>Etkinlik Takvimim</h2>
+  <h2><?= t('Etkinlik Takvimim', 'My Event Calendar') ?></h2>
   
   <div class="filter-buttons">
     <button class="filter-btn active" data-filter="all">Tümü</button>
@@ -129,9 +130,12 @@ include "db.php";
   <div id="etkinlikler-container"></div>
 
   <section class="katilacagim-container">
-    <h3>Katılacağım Kulüp Etkinliklerim</h3>
+    <h3><?= t('Katılacağım Kulüp Etkinliklerim', 'Club Events I Will Attend') ?></h3>
     <p style="color:#666; font-size:0.95em;">
-      İlgi alanlarına göre önerilen ve <strong>Katılacağım</strong> dediğin kulüp etkinlikleri burada listelenir.
+      <?= t(
+        'İlgi alanlarına göre önerilen ve <strong>Katılacağım</strong> dediğin kulüp etkinlikleri burada listelenir.',
+        'Club events recommended based on your interests and marked as <strong>I will attend</strong> are listed here.'
+      ); ?>
     </p>
     <div id="katilacagim-container"></div>
   </section>
@@ -210,7 +214,7 @@ function displayEtkinlikler(etkinlikler) {
       const gun = Math.floor(diffMinutes / (60 * 24));
       const saat = Math.floor((diffMinutes % (60 * 24)) / 60);
       const dakika = diffMinutes % 60;
-      geriSayimHtml = `<p><strong>Kalan Süre:</strong> ${gun}g ${saat}s ${dakika}d</p>`;
+      geriSayimHtml = `<p><strong><?= t('Kalan Süre:', 'Time Left:') ?></strong> ${gun}${'<?= t('g', 'd') ?>'} ${saat}${'<?= t('s', 'h') ?>'} ${dakika}${'<?= t('d', 'm') ?>'}</p>`;
     }
     
     return `
@@ -245,7 +249,7 @@ async function fetchKatilacagimEtkinlikler() {
     const data = await response.json();
 
     if (!data.success || !data.data || data.data.length === 0) {
-      container.innerHTML = '<p style="color:#999;">Henüz katılacağım olarak işaretlediğin bir kulüp etkinliği yok.</p>';
+      container.innerHTML = '<p style="color:#999;"><?= t('Henüz katılacağım olarak işaretlediğin bir kulüp etkinliği yok.', 'You have no club events marked as I will attend yet.') ?></p>';
       return;
     }
 
@@ -256,7 +260,7 @@ async function fetchKatilacagimEtkinlikler() {
     });
 
     if (gelecektekiler.length === 0) {
-      container.innerHTML = '<p style="color:#999;">Gelecekte tarihli katılacağın kulüp etkinliği bulunmuyor.</p>';
+      container.innerHTML = '<p style="color:#999;"><?= t('Gelecekte tarihli katılacağın kulüp etkinliği bulunmuyor.', 'There are no upcoming club events you will attend.') ?></p>';
       return;
     }
 
@@ -275,11 +279,11 @@ async function fetchKatilacagimEtkinlikler() {
         <div>
           <div class="katilacagim-baslik">${item.etkinlik.etkinlik_adi}</div>
           <div class="katilacagim-detay">
-            ${t.toLocaleString('tr-TR')} | ${item.etkinlik.kulup_adi || 'Kulüp Etkinliği'}
+            ${t.toLocaleString('tr-TR')} | ${item.etkinlik.kulup_adi || '<?= t('Kulüp Etkinliği', 'Club Event') ?>'}
           </div>
         </div>
         <div class="katilacagim-geri-sayim">
-          Kalan: ${gun}g ${saat}s ${dakika}d
+          <?= t('Kalan:', 'Remaining:') ?> ${gun}${'<?= t('g', 'd') ?>'} ${saat}${'<?= t('s', 'h') ?>'} ${dakika}${'<?= t('d', 'm') ?>'}
         </div>
       `;
       container.appendChild(div);

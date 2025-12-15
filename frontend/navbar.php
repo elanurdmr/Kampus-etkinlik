@@ -1,8 +1,5 @@
 <?php
-// Session kontrolü - eğer session başlatılmamışsa başlat
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/lang.php';
 
 // $currentPage değişkeni yoksa tanımla
 if (!isset($currentPage)) {
@@ -736,71 +733,88 @@ if (!isset($currentPage)) {
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h3>Menü</h3>
+    <h3><?= t('Menü', 'Menu') ?></h3>
     <button class="sidebar-close" onclick="toggleSidebar()">×</button>
   </div>
   
   <ul class="sidebar-menu">
     <li><a href="index.php" class="<?= $currentPage == 'index.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Ana Sayfa</span>
+      <span><?= t('Ana Sayfa', 'Home') ?></span>
     </a></li>
     
     <div class="sidebar-divider"></div>
-    <div class="sidebar-section-title">Etkinlikler</div>
+    <div class="sidebar-section-title"><?= t('Etkinlikler', 'Events') ?></div>
     
     <li><a href="etkinlikler.php" class="<?= $currentPage == 'etkinlikler.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Etkinlikler</span>
+      <span><?= t('Etkinlikler', 'Events') ?></span>
     </a></li>
     <li><a href="takvim.php" class="<?= $currentPage == 'takvim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Akademik Takvim</span>
+      <span><?= t('Akademik Takvim', 'Academic Calendar') ?></span>
     </a></li>
     <li><a href="akademik-takvim.php" class="<?= $currentPage == 'akademik-takvim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Etkinlik Takvimim</span>
+      <span><?= t('Etkinlik Takvimim', 'My Event Calendar') ?></span>
     </a></li>
     <li><a href="etkinlik-yonetim.php" class="<?= $currentPage == 'etkinlik-yonetim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Etkinlik Yönetimi</span>
+      <span><?= t('Etkinlik Yönetimi', 'Event Management') ?></span>
     </a></li>
     <li><a href="ilgi-alanlari.php" class="<?= $currentPage == 'ilgi-alanlari.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>İlgi Alanlarım</span>
+      <span><?= t('İlgi Alanlarım', 'My Interests') ?></span>
     </a></li>
     <li><a href="etkinlik-onerileri.php" class="<?= $currentPage == 'etkinlik-onerileri.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Öneriler</span>
+      <span><?= t('Öneriler', 'Suggestions') ?></span>
     </a></li>
     <li><a href="arkadaslar.php" class="<?= $currentPage == 'arkadaslar.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Arkadaşlarım</span>
+      <span><?= t('Arkadaşlarım', 'Friends') ?></span>
     </a></li>
     
     <div class="sidebar-divider"></div>
-    <div class="sidebar-section-title">Rezervasyonlar</div>
+    <div class="sidebar-section-title"><?= t('Rezervasyonlar', 'Reservations') ?></div>
     
     <li><a href="rezervasyon-yap.php" class="<?= $currentPage == 'rezervasyon-yap.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Kütüphane Rezervasyonu</span>
+      <span><?= t('Kütüphane Rezervasyonu', 'Library Reservation') ?></span>
     </a></li>
     
     <div class="sidebar-divider"></div>
-    <div class="sidebar-section-title">Randevular</div>
+    <div class="sidebar-section-title"><?= t('Randevular', 'Appointments') ?></div>
     
     <li><a href="ogretim-uyesi-program.php" class="<?= $currentPage == 'ogretim-uyesi-program.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Öğretim Üyesi Programları</span>
+      <span><?= t('Öğretim Üyesi Programları', 'Faculty Schedules') ?></span>
     </a></li>
     <li><a href="randevu-olustur.php" class="<?= $currentPage == 'randevu-olustur.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Randevu Al</span>
+      <span><?= t('Randevu Al', 'Book Appointment') ?></span>
     </a></li>
     <li><a href="randevularim.php" class="<?= $currentPage == 'randevularim.php' ? 'active' : '' ?>">
       <span class="sidebar-menu-icon">•</span>
-      <span>Randevularım</span>
+      <span><?= t('Randevularım', 'My Appointments') ?></span>
     </a></li>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title"><?= t('Ayarlar', 'Settings') ?></div>
+    <li>
+      <div style="display:flex; align-items:center; padding:10px 20px; font-size:0.85em; color:#555;">
+        <span style="margin-right:8px;"><?= t('Dil:', 'Language:') ?></span>
+        <a href="?lang=tr"
+           style="margin-right:6px; font-weight:<?= $currentLang === 'tr' ? '700' : '400' ?>; color: <?= $currentLang === 'tr' ? '#b30000' : '#555' ?>; text-decoration:none;">
+          TR
+        </a>
+        <span style="margin:0 4px; color:#ccc;">|</span>
+        <a href="?lang=en"
+           style="margin-left:6px; font-weight:<?= $currentLang === 'en' ? '700' : '400' ?>; color: <?= $currentLang === 'en' ? '#b30000' : '#555' ?>; text-decoration:none;">
+          EN
+        </a>
+      </div>
+    </li>
   </ul>
 </div>
 
@@ -839,7 +853,7 @@ if (!isset($currentPage)) {
       <?php if (!isset($_SESSION['user_id'])): ?>
         <div class="auth-buttons">
           <a href="login.php" class="auth-btn auth-btn-login">Giriş Yap</a>
-          <a href="signup.php" class="auth-btn auth-btn-signup">Kayıt Ol</a>
+          <a href="signup.php" class="auth-btn auth-btn-signup"><?= t('Kayıt Ol', 'Sign Up') ?></a>
         </div>
       <?php else: ?>
         <div class="user-menu-wrapper" onclick="toggleUserMenu(event)">
@@ -854,7 +868,7 @@ if (!isset($currentPage)) {
               ?>
             </div>
             <span class="user-name">
-              <?php echo isset($_SESSION['ad']) ? htmlspecialchars($_SESSION['ad']) : 'Kullanıcı'; ?>
+              <?php echo isset($_SESSION['ad']) ? htmlspecialchars($_SESSION['ad']) : t('Kullanıcı', 'User'); ?>
             </span>
             <span class="user-menu-arrow"></span>
           </div>
@@ -879,22 +893,22 @@ if (!isset($currentPage)) {
             
             <a href="profile.php" class="user-menu-item">
               <span class="user-menu-icon">•</span>
-              <span>Profilim</span>
+              <span><?= t('Profilim', 'My Profile') ?></span>
             </a>
             
             <a href="randevularim.php" class="user-menu-item">
               <span class="user-menu-icon">•</span>
-              <span>Randevularım</span>
+              <span><?= t('Randevularım', 'My Appointments') ?></span>
             </a>
             
             <a href="bildirimler.php" class="user-menu-item">
               <span class="user-menu-icon">•</span>
-              <span>Bildirimler</span>
+              <span><?= t('Bildirimler', 'Notifications') ?></span>
             </a>
             
             <a href="logout.php" class="user-menu-item logout">
               <span class="user-menu-icon">•</span>
-              <span>Çıkış Yap</span>
+              <span><?= t('Çıkış Yap', 'Log out') ?></span>
             </a>
           </div>
         </div>

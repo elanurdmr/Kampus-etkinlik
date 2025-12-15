@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db.php";
+require_once "lang.php";
 $currentPage = basename($_SERVER['PHP_SELF']);
 // Giriş yapmış kullanıcının ID'si (yoksa demo 1)
 $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
@@ -11,7 +12,7 @@ $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>İlgi Alanlarım | Kamps Sistemi</title>
+  <title><?= t('İlgi Alanlarım | Kampüs Sistemi', 'My Interests | Campus System') ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
     .ilgi-container {
@@ -127,9 +128,12 @@ $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
 <?php include "navbar.php"; ?>
 
 <main class="ilgi-container">
-  <h1 class="ilgi-baslik">İlgi Alanlarını Seç</h1>
+  <h1 class="ilgi-baslik"><?= t('İlgi Alanlarını Seç', 'Choose Your Interests') ?></h1>
   <p class="aciklama">
-    İlgilendiğin alanları seç, sana özel etkinlik önerileri alalım!
+    <?= t(
+      'İlgilendiğin alanları seç, sana özel etkinlik önerileri alalım!',
+      'Select the topics you are interested in and we will suggest events just for you!'
+    ); ?>
   </p>
 
   <div id="mesaj" class="mesaj"></div>
@@ -139,12 +143,12 @@ $kullanici_id = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 1;
   </div>
 
   <button onclick="kaydetIlgiAlanlari()" class="kaydet-btn">
-    💾 İlgi Alanlarımı Kaydet
+    💾 <?= t('İlgi Alanlarımı Kaydet', 'Save My Interests') ?>
   </button>
 
   <div class="oneriler-link">
     <a href="etkinlik-onerileri.php">
-      Etkinlik Önerilerine Git
+      <?= t('Etkinlik Önerilerine Git', 'Go to Event Suggestions') ?>
     </a>
   </div>
 </main>
@@ -200,7 +204,7 @@ async function yukleIlgiAlanlari() {
     }
   } catch (error) {
     console.error('İlgi alanları yüklenemedi:', error);
-    gosterMesaj('İlgi alanları yüklenirken hata oluştu', 'error');
+    gosterMesaj('<?= t('İlgi alanları yüklenirken hata oluştu', 'An error occurred while loading interests') ?>', 'error');
   }
 }
 
@@ -233,7 +237,7 @@ function toggleIlgiAlani(id, element) {
 
 async function kaydetIlgiAlanlari() {
   if (secilenIlgiAlanlar.size === 0) {
-    gosterMesaj('Lütfen en az bir ilgi alanı seçin', 'error');
+    gosterMesaj('<?= t('Lütfen en az bir ilgi alanı seçin', 'Please select at least one interest') ?>', 'error');
     return;
   }
   
@@ -250,16 +254,16 @@ async function kaydetIlgiAlanlari() {
     const data = await response.json();
     
     if (data.success) {
-      gosterMesaj('İlgi alanlarınız kaydedildi!', 'success');
+      gosterMesaj('<?= t('İlgi alanlarınız kaydedildi!', 'Your interests have been saved!') ?>', 'success');
       setTimeout(() => {
         window.location.href = 'etkinlik-onerileri.php';
       }, 1500);
     } else {
-      gosterMesaj('Kaydetme sırasında hata oluştu', 'error');
+      gosterMesaj('<?= t('Kaydetme sırasında hata oluştu', 'An error occurred while saving') ?>', 'error');
     }
   } catch (error) {
     console.error('Kaydetme hatası:', error);
-    gosterMesaj('Bir hata oluştu', 'error');
+    gosterMesaj('<?= t('Bir hata oluştu', 'An error occurred') ?>', 'error');
   }
 }
 
