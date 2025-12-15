@@ -264,3 +264,32 @@ class Bildirim(Base):
     olusturma_tarihi = Column(DateTime, default=datetime.now)
     okunma_tarihi = Column(DateTime, nullable=True)
 
+
+class KullaniciPuanDurumu(Base):
+    """Etkinlik katılımlarına göre kullanıcı puan ve seviye bilgisi"""
+    __tablename__ = "kullanici_puan_durumu"
+
+    id = Column(Integer, primary_key=True, index=True)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), unique=True, nullable=False)
+    toplam_puan = Column(Integer, default=0)
+    seviye = Column(Integer, default=1)
+    toplam_katilim = Column(Integer, default=0)
+    streak_gun = Column(Integer, default=0)
+    son_katilim_tarihi = Column(Date, nullable=True)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    guncellenme_tarihi = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+class KatilimPuanLogu(Base):
+    """Her katılım için puan hareketleri"""
+    __tablename__ = "katilim_puan_loglari"
+
+    id = Column(Integer, primary_key=True, index=True)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    etkinlik_id = Column(Integer, ForeignKey("akademik_etkinlikler.id"), nullable=False)
+    katilim_id = Column(Integer, ForeignKey("katilimlar.id"), nullable=False)
+    puan = Column(Integer, nullable=False)
+    aciklama = Column(String(255))
+    tarih = Column(DateTime, default=datetime.now)
+
+

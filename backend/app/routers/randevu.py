@@ -505,3 +505,4 @@ def yaklasan_randevu_hatirlatmalari(db: Session = Depends(get_db)):
         "gonderilen_hatirlatmalar": gonderilen_hatirlatmalar
     }
 
+

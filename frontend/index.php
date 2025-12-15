@@ -4,9 +4,12 @@ ini_set('display_errors', 1);
 
 session_start();
 include "db.php";
+require_once "kulup_etkinlikleri_mock.php";
 
 // Aktif sayfa ismini tespit ediyoruz
 $currentPage = basename($_SERVER['PHP_SELF']);
+$kulupEtkinlikleri = getKulupEtkinlikleriMock();
+$oneCikanEtkinlikler = array_values(array_filter($kulupEtkinlikleri, fn($e) => !empty($e['one_cikan'])));
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -47,18 +50,23 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <section class="duyurular">
   <h2>Duyurular</h2>
   <div class="duyuru-listesi">
-    <div class="duyuru">
-      <h3>Kütüphane Çalışma Saatleri Güncellendi</h3>
-      <p>Yeni saatler: 09.00 - 22.00 | Hafta sonu: 10.00 - 18.00</p>
-    </div>
-    <div class="duyuru">
-      <h3>Yazılım Kulübü Hackathon Başvuruları Başladı</h3>
-      <p>Son başvuru: 15 Kasım 2025. Kazanan ekibe ödül!</p>
-    </div>
-    <div class="duyuru">
-      <h3>Psikoloji Kulübü Söyleşi Etkinliği</h3>
-      <p>20 Kasım 2025, D Blok Konferans Salonu. Konuk: Dr. Elif Yıldırım.</p>
-    </div>
+    <?php if (!empty($oneCikanEtkinlikler)): ?>
+      <?php foreach (array_slice($oneCikanEtkinlikler, 0, 3) as $etkinlik): ?>
+        <div class="duyuru">
+          <h3><?php echo htmlspecialchars($etkinlik['ad']); ?></h3>
+          <p>
+            <?php echo htmlspecialchars($etkinlik['kulup']); ?> |
+            <?php echo htmlspecialchars($etkinlik['tarih']); ?> |
+            <?php echo htmlspecialchars($etkinlik['konum']); ?>
+          </p>
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <div class="duyuru">
+        <h3>Şu anda öne çıkan bir etkinlik yok</h3>
+        <p>Yeni kulüp etkinlikleri eklendikçe burada göreceksiniz.</p>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 

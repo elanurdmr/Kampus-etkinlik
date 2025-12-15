@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, date, time
-from typing import Optional
+from typing import Optional, List
 
 # Akademik Etkinlik Şemaları
 class AkademikEtkinlikBase(BaseModel):
@@ -237,4 +237,25 @@ class Bildirim(BildirimBase):
     
     class Config:
         from_attributes = True
+
+
+# Puan / Seviye Şemaları
+class KatilimPuanLogu(BaseModel):
+    id: int
+    etkinlik_id: int
+    etkinlik_baslik: str
+    puan: int
+    aciklama: Optional[str] = None
+    tarih: datetime
+
+
+class KullaniciPuanDurumu(BaseModel):
+    toplam_puan: int
+    seviye: int
+    rozet: str
+    toplam_katilim: int
+    streak_gun: int
+    son_katilim_tarihi: Optional[date] = None
+    gecmis: List[KatilimPuanLogu] = []
+
 

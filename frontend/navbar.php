@@ -773,6 +773,10 @@ if (!isset($currentPage)) {
       <span class="sidebar-menu-icon">•</span>
       <span>Öneriler</span>
     </a></li>
+    <li><a href="arkadaslar.php" class="<?= $currentPage == 'arkadaslar.php' ? 'active' : '' ?>">
+      <span class="sidebar-menu-icon">•</span>
+      <span>Arkadaşlarım</span>
+    </a></li>
     
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">Rezervasyonlar</div>
