@@ -190,7 +190,7 @@ $kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
 
 <div class="randevu-container">
   <div class="page-header">
-    <h2>📅 Öğretim Üyesi Randevu Oluştur</h2>
+    <h2>Öğretim Üyesi Randevu Oluştur</h2>
     <p>Öğretim üyesi ile randevu almak için formu doldurun</p>
   </div>
 
@@ -372,7 +372,7 @@ async function ogretimUyeleriniYukle() {
       } else {
         errorMessage = `
           <div style="background: #f8d7da; border: 2px solid #dc3545; padding: 20px; border-radius: 8px; color: #721c24;">
-            <h4 style="margin: 0 0 10px 0;">❌ Hata</h4>
+            <h4 style="margin: 0 0 10px 0;">Hata</h4>
             <p style="margin: 5px 0;">${error.message}</p>
             <p style="margin: 10px 0; font-size: 0.85em;">
               Backend çalışıyor mu kontrol edin: <a href="http://localhost:8000" target="_blank">http://localhost:8000</a>

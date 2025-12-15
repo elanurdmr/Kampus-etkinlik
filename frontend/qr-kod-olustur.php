@@ -3,13 +3,20 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Output buffering başlat
+ob_start();
+
 // Session başlat
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once "lang.php";
-include "auth_helper.php";
+try {
+    require_once "lang.php";
+    require_once "auth_helper.php";
+} catch (Exception $e) {
+    die("Hata: " . $e->getMessage());
+}
 
 // Sadece admin veya kulüp başkanı erişebilsin
 if (!isset($_SESSION['user_id'])) {
@@ -374,3 +381,4 @@ function qrKodIndir() {
 
 </body>
 </html>
+<?php ob_end_flush(); ?>

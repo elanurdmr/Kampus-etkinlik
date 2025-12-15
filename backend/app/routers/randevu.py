@@ -391,7 +391,7 @@ def randevu_hatirlatma_gonder(randevu_id: int, db: Session = Depends(get_db)):
         try:
             bildirim = models.Bildirim(
                 kullanici_id=ogrenci.id,
-                baslik="🔔 Randevu Hatırlatması",
+                baslik="Randevu Hatırlatması",
                 mesaj=f"{ogretim_uyesi.unvan} {ogretim_uyesi.ad} {ogretim_uyesi.soyad} ile {randevu.randevu_tarihi} tarihinde saat {str(randevu.randevu_saati)[:-3]} randevunuz bulunmaktadır.",
                 tip="randevu_hatirlatma",
                 ilgili_randevu_id=randevu.id
@@ -477,7 +477,7 @@ def yaklasan_randevu_hatirlatmalari(db: Session = Depends(get_db)):
                 try:
                     bildirim = models.Bildirim(
                         kullanici_id=ogrenci.id,
-                        baslik="🔔 Randevu Hatırlatması",
+                        baslik="Randevu Hatırlatması",
                         mesaj=f"{ogretim_uyesi.unvan} {ogretim_uyesi.ad} {ogretim_uyesi.soyad} ile {randevu.randevu_tarihi} tarihinde saat {str(randevu.randevu_saati)[:-3]} randevunuz bulunmaktadır.",
                         tip="randevu_hatirlatma",
                         ilgili_randevu_id=randevu.id

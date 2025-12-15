@@ -11,23 +11,31 @@ if (!function_exists('getCurrentUserRole')) {
     }
 }
 
-function isAdmin() {
-    return getCurrentUserRole() === 'admin';
-}
-
-function isOgretmen() {
-    return getCurrentUserRole() === 'ogretmen';
-}
-
-function isOgrenci() {
-    return getCurrentUserRole() === 'ogrenci';
-}
-
-function isKulupBaskani() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+if (!function_exists('isAdmin')) {
+    function isAdmin() {
+        return getCurrentUserRole() === 'admin';
     }
-    return !empty($_SESSION['kulup_baskani']);
+}
+
+if (!function_exists('isOgretmen')) {
+    function isOgretmen() {
+        return getCurrentUserRole() === 'ogretmen';
+    }
+}
+
+if (!function_exists('isOgrenci')) {
+    function isOgrenci() {
+        return getCurrentUserRole() === 'ogrenci';
+    }
+}
+
+if (!function_exists('isKulupBaskani')) {
+    function isKulupBaskani() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        return !empty($_SESSION['kulup_baskani']);
+    }
 }
 
 /**
@@ -35,7 +43,8 @@ function isKulupBaskani() {
  *
  * @param string|array $requiredRole 'admin' | 'ogretmen' | 'ogrenci' veya bunların listesi
  */
-function requireRole($requiredRole) {
+if (!function_exists('requireRole')) {
+    function requireRole($requiredRole) {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -59,8 +68,10 @@ function requireRole($requiredRole) {
         }
     }
 }
+}
 
-function redirectToPanel() {
+if (!function_exists('redirectToPanel')) {
+    function redirectToPanel() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -77,5 +88,6 @@ function redirectToPanel() {
         header("Location: index.php");
     }
     exit;
+}
 }
 ?>

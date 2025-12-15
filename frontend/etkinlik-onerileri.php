@@ -371,15 +371,15 @@ async function yukleOneriler() {
             ${etkinlik.tercih_durumu ? `
               <div class="tercih-badge tercih-${etkinlik.tercih_durumu}">
                 ${etkinlik.tercih_durumu === 'katilacak'
-                  ? '✅ <?= t('Katılacaksın', 'You will attend') ?>'
-                  : '❌ <?= t('Katılmayacaksın', 'You will not attend') ?>'}
+                  ? '<?= t('Katılacaksın', 'You will attend') ?>'
+                  : '<?= t('Katılmayacaksın', 'You will not attend') ?>'}
               </div>
             ` : `
               <button class="btn btn-katil" onclick="gosterPopup(${etkinlik.id}, '${etkinlik.etkinlik_adi}', '${etkinlik.kulup.kulup_adi}', '${tarih.toLocaleString('tr-TR')}')">
-                ✅ <?= t('Katılacağım', 'I will attend') ?>
+                <?= t('Katılacağım', 'I will attend') ?>
               </button>
               <button class="btn btn-katilma" onclick="tercihKaydet(${etkinlik.id}, 'katilmayacak')">
-                ❌ <?= t('Katılmayacağım', 'I will not attend') ?>
+                <?= t('Katılmayacağım', 'I will not attend') ?>
               </button>
             `}
           </div>
