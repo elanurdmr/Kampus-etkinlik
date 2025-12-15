@@ -208,3 +208,59 @@ class KutuphaneDoluluk(Base):
     # İlişkiler
     kutuphane = relationship("Kutuphane", back_populates="doluluk_bilgileri")
 
+
+class OgretimUyesi(Base):
+    """Öğretim üyeleri bilgileri"""
+    __tablename__ = "ogretim_uyeleri"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    ad = Column(String(100), nullable=False)
+    soyad = Column(String(100), nullable=False)
+    email = Column(String(150), unique=True, nullable=False, index=True)
+    unvan = Column(String(100))  # Prof. Dr., Doç. Dr., Dr. Öğr. Üyesi vb.
+    bolum = Column(String(200))
+    ofis_no = Column(String(50))
+    telefon = Column(String(20))
+    calisma_saatleri = Column(Text)  # JSON formatında: {"pazartesi": "09:00-17:00", ...}
+    aktif = Column(Boolean, default=True)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    
+    # İlişkiler
+    randevular = relationship("Randevu", back_populates="ogretim_uyesi")
+
+
+class Randevu(Base):
+    """Öğrenci-Öğretim üyesi randevu kayıtları"""
+    __tablename__ = "randevular"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    ogretim_uyesi_id = Column(Integer, ForeignKey("ogretim_uyeleri.id"), nullable=False)
+    ogrenci_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    randevu_tarihi = Column(Date, nullable=False)
+    randevu_saati = Column(Time, nullable=False)
+    konu = Column(String(200), nullable=False)
+    aciklama = Column(Text)
+    durum = Column(String(50), default="bekliyor")  # beklemede, onaylandi, reddedildi, tamamlandi, iptal_edildi
+    hatirlatma_gonderildi = Column(Boolean, default=False)
+    hatirlatma_tarihi = Column(DateTime)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    guncellenme_tarihi = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # İlişkiler
+    ogretim_uyesi = relationship("OgretimUyesi", back_populates="randevular")
+
+
+class Bildirim(Base):
+    """Kullanıcı bildirimleri"""
+    __tablename__ = "bildirimler"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    kullanici_id = Column(Integer, ForeignKey("kullanicilar.id"), nullable=False)
+    baslik = Column(String(200), nullable=False)
+    mesaj = Column(Text, nullable=False)
+    tip = Column(String(50), nullable=False)  # randevu_onay, randevu_red, randevu_hatirlatma, sistem
+    okundu = Column(Boolean, default=False)
+    ilgili_randevu_id = Column(Integer, ForeignKey("randevular.id"), nullable=True)
+    olusturma_tarihi = Column(DateTime, default=datetime.now)
+    okunma_tarihi = Column(DateTime, nullable=True)
+

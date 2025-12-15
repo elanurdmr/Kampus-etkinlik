@@ -163,3 +163,78 @@ class KutuphaneDoluluk(KutuphaneDolulukBase):
     class Config:
         from_attributes = True
 
+
+# Öğretim Üyesi Şemaları
+class OgretimUyesiBase(BaseModel):
+    ad: str
+    soyad: str
+    email: EmailStr
+    unvan: Optional[str] = None
+    bolum: Optional[str] = None
+    ofis_no: Optional[str] = None
+    telefon: Optional[str] = None
+    calisma_saatleri: Optional[str] = None
+    aktif: bool = True
+
+class OgretimUyesiCreate(OgretimUyesiBase):
+    pass
+
+class OgretimUyesi(OgretimUyesiBase):
+    id: int
+    olusturma_tarihi: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# Randevu Şemaları
+class RandevuBase(BaseModel):
+    ogretim_uyesi_id: int
+    ogrenci_id: int
+    randevu_tarihi: date
+    randevu_saati: time
+    konu: str
+    aciklama: Optional[str] = None
+
+class RandevuCreate(RandevuBase):
+    pass
+
+class RandevuUpdate(BaseModel):
+    durum: Optional[str] = None
+    konu: Optional[str] = None
+    aciklama: Optional[str] = None
+    randevu_tarihi: Optional[date] = None
+    randevu_saati: Optional[time] = None
+
+class Randevu(RandevuBase):
+    id: int
+    durum: str
+    hatirlatma_gonderildi: bool
+    hatirlatma_tarihi: Optional[datetime] = None
+    olusturma_tarihi: datetime
+    guncellenme_tarihi: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# Bildirim Şemaları
+class BildirimBase(BaseModel):
+    kullanici_id: int
+    baslik: str
+    mesaj: str
+    tip: str
+    ilgili_randevu_id: Optional[int] = None
+
+class BildirimCreate(BildirimBase):
+    pass
+
+class Bildirim(BildirimBase):
+    id: int
+    okundu: bool
+    olusturma_tarihi: datetime
+    okunma_tarihi: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True
+

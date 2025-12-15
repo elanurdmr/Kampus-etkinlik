@@ -2,8 +2,13 @@
 session_start();
 $currentPage = basename($_SERVER['PHP_SELF']);
 
-// Kullanıcı ID'si (gerçek uygulamada session'dan gelecek)
-$kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
+// Kullanıcı ID'si
+$kullanici_id = $_SESSION['user_id'] ?? null;
+
+if (!$kullanici_id) {
+    header("Location: login.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -227,6 +232,9 @@ $kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
   <div id="loading" class="loading">
     <p>Kütüphane bilgileri yükleniyor...</p>
   </div>
+  
+  <div id="error-message" style="display: none; background: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px; color: #856404;">
+  </div>
 
   <div id="success-message" class="success-message"></div>
   <div id="error-message" class="error-message"></div>
@@ -295,7 +303,11 @@ $kullanici_id = $_SESSION['user_id'] ?? 1; // Demo için 1
 <script>
 const API_URL = 'http://localhost:8000/api/kutuphane';
 let kutuphaneId = null;
-const kullaniciId = <?= $kullanici_id ?>;
+// kullaniciId navbar.php'den geliyor, eğer yoksa buradan al
+if (typeof window.kullaniciId === 'undefined') {
+  window.kullaniciId = <?= json_encode($kullanici_id); ?>;
+}
+// const tanımlamıyoruz, direkt window.kullaniciId kullanacağız
 
 let kutuphane = null;
 let selectedBaslangic = null;
@@ -303,9 +315,34 @@ let selectedBitis = null;
 
 // Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM yüklendi, kütüphane listesi çekiliyor...');
+  console.log('Kullanıcı ID:', window.kullaniciId);
+  console.log('API URL:', API_URL);
+  
+  try {
+    fetchKutuphaneListesi();
+    setupEventListeners();
+  } catch (error) {
+    console.error('Sayfa yükleme hatası:', error);
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error-message');
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = 'Sayfa yüklenirken hata oluştu: ' + error.message;
+    }
+  }
+});
+
+// Eğer DOM zaten yüklenmişse
+if (document.readyState === 'loading') {
+  // DOM henüz yükleniyor
+} else {
+  // DOM zaten yüklü
+  console.log('DOM zaten yüklü, direkt çalıştırılıyor...');
   fetchKutuphaneListesi();
   setupEventListeners();
-});
+}
 
 // Event listener'ları ayarla
 function setupEventListeners() {
@@ -324,31 +361,108 @@ async function fetchKutuphaneListesi() {
   const loadingDiv = document.getElementById('loading');
   const errorDiv = document.getElementById('error-message');
   
+  if (!loadingDiv) {
+    console.error('Loading div bulunamadı!');
+    return;
+  }
+  
+  if (!errorDiv) {
+    console.error('Error div bulunamadı!');
+    return;
+  }
+  
+  console.log('Kütüphane listesi yükleniyor...', API_URL);
+  
+  // Timeout kontrolü
+  const timeoutId = setTimeout(() => {
+    console.error('Timeout: Kütüphane listesi yüklenemedi');
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = `
+        <p><strong>Bağlantı zaman aşımına uğradı</strong></p>
+        <p>Backend sunucusu çalışmıyor olabilir. Lütfen backend'in çalıştığından emin olun.</p>
+        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+          Backend'i başlatmak için: <code>cd backend/app && python main.py</code>
+        </p>
+        <p style="font-size: 0.85em; color: #999; margin-top: 10px;">
+          API URL: ${API_URL}/kutuphaneler
+        </p>
+      `;
+    }
+  }, 5000); // 5 saniye timeout
+  
   try {
-    const response = await fetch(`${API_URL}/kutuphaneler`);
+    console.log('Fetch başlatılıyor:', `${API_URL}/kutuphaneler`);
+    
+    const response = await fetch(`${API_URL}/kutuphaneler`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    console.log('Response alındı:', response.status, response.ok);
     
     if (!response.ok) {
-      throw new Error('Kütüphaneler yüklenemedi');
+      const errorText = await response.text();
+      console.error('Response error:', errorText);
+      throw new Error(`Kütüphaneler yüklenemedi (HTTP ${response.status}): ${errorText}`);
     }
     
     const kutuphaneler = await response.json();
+    console.log('Kütüphaneler alındı:', kutuphaneler);
     
-    if (kutuphaneler.length === 0) {
+    if (!kutuphaneler || kutuphaneler.length === 0) {
       throw new Error('Hiç kütüphane bulunamadı');
     }
     
     // İlk (ve tek) kütüphaneyi seç
     kutuphaneId = kutuphaneler[0].id;
-    document.getElementById('kutuphane_id').value = kutuphaneId;
+    const kutuphaneIdInput = document.getElementById('kutuphane_id');
+    if (kutuphaneIdInput) {
+      kutuphaneIdInput.value = kutuphaneId;
+    }
+    
+    console.log('Kütüphane ID seçildi:', kutuphaneId);
     
     // Kütüphane detayını yükle
     fetchKutuphaneDetay();
     
   } catch (error) {
-    console.error('Hata:', error);
-    loadingDiv.style.display = 'none';
-    errorDiv.style.display = 'block';
-    errorDiv.textContent = error.message;
+    clearTimeout(timeoutId);
+    console.error('Hata detayı:', error);
+    if (loadingDiv) {
+      loadingDiv.style.display = 'none';
+      loadingDiv.innerHTML = ''; // Loading mesajını temizle
+    }
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      
+      if (error.name === 'TypeError' && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
+        errorDiv.innerHTML = `
+          <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 20px; border-radius: 8px; color: #856404;">
+            <h4 style="margin: 0 0 10px 0;">⚠️ Backend Sunucusu Çalışmıyor</h4>
+            <p style="margin: 5px 0;">Backend sunucusuna bağlanılamıyor. Lütfen backend'in çalıştığından emin olun.</p>
+            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+              <strong>Backend'i başlatmak için terminalde:</strong><br>
+              <code style="background: #f5f5f5; padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px;">cd backend/app && python main.py</code>
+            </p>
+            <p style="font-size: 0.85em; color: #999; margin-top: 10px;">
+              API URL: <a href="${API_URL}/kutuphaneler" target="_blank">${API_URL}/kutuphaneler</a>
+            </p>
+          </div>
+        `;
+      } else {
+        errorDiv.innerHTML = `
+          <p><strong>Hata:</strong> ${error.message}</p>
+          <p style="font-size: 0.85em; color: #999; margin-top: 10px;">
+            API URL: ${API_URL}/kutuphaneler
+          </p>
+        `;
+      }
+    }
   }
 }
 
@@ -357,28 +471,63 @@ async function fetchKutuphaneDetay() {
   const loadingDiv = document.getElementById('loading');
   const errorDiv = document.getElementById('error-message');
   
+  if (!kutuphaneId) {
+    console.error('Kütüphane ID yok!');
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = 'Kütüphane ID bulunamadı';
+    }
+    return;
+  }
+  
+  console.log('Kütüphane detayı yükleniyor:', kutuphaneId);
+  
   try {
-    const response = await fetch(`${API_URL}/kutuphane/${kutuphaneId}`);
+    const response = await fetch(`${API_URL}/kutuphane/${kutuphaneId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('Kütüphane detay response:', response.status);
     
     if (!response.ok) {
-      throw new Error('Kütüphane bulunamadı');
+      const errorText = await response.text();
+      throw new Error(`Kütüphane bulunamadı (HTTP ${response.status}): ${errorText}`);
     }
     
     kutuphane = await response.json();
+    console.log('Kütüphane detayı alındı:', kutuphane);
     
-    loadingDiv.style.display = 'none';
+    if (loadingDiv) loadingDiv.style.display = 'none';
     displayKutuphaneInfo();
-    document.getElementById('rezervasyon-form-container').style.display = 'block';
+    
+    const formContainer = document.getElementById('rezervasyon-form-container');
+    if (formContainer) {
+      formContainer.style.display = 'block';
+    }
     
     // Bugünün tarihini default olarak seç
-    document.getElementById('rezervasyon_tarihi').value = new Date().toISOString().split('T')[0];
+    const tarihInput = document.getElementById('rezervasyon_tarihi');
+    if (tarihInput) {
+      tarihInput.value = new Date().toISOString().split('T')[0];
+    }
     generateTimeSlots();
     
   } catch (error) {
-    console.error('Hata:', error);
-    loadingDiv.style.display = 'none';
-    errorDiv.style.display = 'block';
-    errorDiv.textContent = error.message;
+    console.error('Kütüphane detay hatası:', error);
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = `
+        <p><strong>Hata:</strong> ${error.message}</p>
+        <p style="font-size: 0.85em; color: #999; margin-top: 10px;">
+          API URL: ${API_URL}/kutuphane/${kutuphaneId}
+        </p>
+      `;
+    }
   }
 }
 
@@ -537,7 +686,7 @@ async function submitRezervasyonu(e) {
   
   const rezervasyonData = {
     kutuphane_id: parseInt(kutuphaneId),
-    kullanici_id: parseInt(kullaniciId),
+    kullanici_id: parseInt(window.kullaniciId),
     rezervasyon_tarihi: document.getElementById('rezervasyon_tarihi').value,
     baslangic_saati: selectedBaslangic + ':00',
     bitis_saati: selectedBitis + ':00'

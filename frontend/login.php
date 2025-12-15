@@ -5,26 +5,75 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $eposta = $_POST['eposta'];
     $sifre = $_POST['sifre'];
 
-    $stmt = $conn->prepare("SELECT * FROM ogrenciler WHERE eposta=?");
+    // Önce kullanicilar tablosunda ara
+    $stmt = $conn->prepare("SELECT * FROM kullanicilar WHERE email=? AND aktif=1");
     $stmt->bind_param("s", $eposta);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        if (password_verify($sifre, $user['sifre'])) {
-            $_SESSION['user_id'] = $user['ogrenci_id'];
-            $_SESSION['ogrenci_id'] = $user['ogrenci_id'];
+        // Şifre kontrolü (eğer şifre alanı varsa)
+        if (isset($user['sifre']) && password_verify($sifre, $user['sifre'])) {
+            $_SESSION['user_id'] = $user['id'];
             $_SESSION['ad'] = $user['ad'];
             $_SESSION['soyad'] = $user['soyad'];
-            $_SESSION['bolum'] = $user['bolum'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['rol'] = 'ogrenci'; // Herkes öğrenci olarak giriş yapar
+            $_SESSION['ogrenci_no'] = $user['ogrenci_no'] ?? '';
+            
+            // Ana sayfaya yönlendir
             header("Location: index.php");
             exit;
         } else {
-            $error = "Şifre yanlış!";
+            // Şifre alanı yoksa veya yanlışsa, eski ogrenciler tablosunu kontrol et
+            $stmt2 = $conn->prepare("SELECT * FROM ogrenciler WHERE eposta=?");
+            $stmt2->bind_param("s", $eposta);
+            $stmt2->execute();
+            $result2 = $stmt2->get_result();
+            
+            if ($result2->num_rows > 0) {
+                $oldUser = $result2->fetch_assoc();
+                if (password_verify($sifre, $oldUser['sifre'])) {
+                    $_SESSION['user_id'] = $oldUser['ogrenci_id'];
+                    $_SESSION['ad'] = $oldUser['ad'];
+                    $_SESSION['soyad'] = $oldUser['soyad'];
+                    $_SESSION['email'] = $oldUser['eposta'];
+                    $_SESSION['rol'] = 'ogrenci';
+                    $_SESSION['ogrenci_no'] = $oldUser['ogrenci_no'] ?? '';
+                    header("Location: index.php");
+                    exit;
+                } else {
+                    $error = "Şifre yanlış!";
+                }
+            } else {
+                $error = "Şifre yanlış!";
+            }
         }
     } else {
-        $error = "Bu e-posta adresiyle kayıt bulunamadı!";
+        // Eski ogrenciler tablosunda ara (geriye dönük uyumluluk)
+        $stmt = $conn->prepare("SELECT * FROM ogrenciler WHERE eposta=?");
+        $stmt->bind_param("s", $eposta);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            if (password_verify($sifre, $user['sifre'])) {
+                $_SESSION['user_id'] = $user['ogrenci_id'];
+                $_SESSION['ad'] = $user['ad'];
+                $_SESSION['soyad'] = $user['soyad'];
+                $_SESSION['email'] = $user['eposta'];
+                $_SESSION['rol'] = 'ogrenci';
+                $_SESSION['ogrenci_no'] = $user['ogrenci_no'] ?? '';
+                header("Location: index.php");
+                exit;
+            } else {
+                $error = "Şifre yanlış!";
+            }
+        } else {
+            $error = "Bu e-posta adresiyle kayıt bulunamadı!";
+        }
     }
 }
 ?>
