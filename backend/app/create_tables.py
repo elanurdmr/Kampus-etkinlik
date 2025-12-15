@@ -2,11 +2,25 @@
 Veritabanı tablolarını oluşturmak için script
 """
 from database import engine, Base
-from models import (
-    AkademikEtkinlik, Kullanici, QRKod, Katilim, GeriSayimAyarlari,
-    IlgiAlani, KullaniciIlgiAlani, Kulup, KulupEtkinligi, KullaniciEtkinlikTercihi,
-    Kutuphane, KutuphaneRezervasyonu, KutuphaneDoluluk,
-    OgretimUyesi, Randevu, Bildirim
+from models import (  # noqa: F401 - sadece tablolar yüklensin diye import ediliyor
+    AkademikEtkinlik,
+    Kullanici,
+    QRKod,
+    Katilim,
+    GeriSayimAyarlari,
+    IlgiAlani,
+    KullaniciIlgiAlani,
+    Kulup,
+    KulupEtkinligi,
+    KullaniciEtkinlikTercihi,
+    Kutuphane,
+    KutuphaneRezervasyonu,
+    KutuphaneDoluluk,
+    OgretimUyesi,
+    Randevu,
+    Bildirim,
+    KullaniciPuanDurumu,
+    KatilimPuanLogu,
 )
 
 def create_tables():

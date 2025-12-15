@@ -1,100 +1,101 @@
-let currentSlide = 0;
-const slides = document.querySelectorAll(".slide-item");
-
-function showSlide(index) {
-  slides.forEach((slide, i) => {
-    slide.style.display = i === index ? "block" : "none";
-  });
-}
-
-function nextSlide() {
-  currentSlide = (currentSlide + 1) % slides.length;
-  showSlide(currentSlide);
-}
-
-function prevSlide() {
-  currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-  showSlide(currentSlide);
-}
-
-
 document.addEventListener("DOMContentLoaded", () => {
+  // === Slider ===
+  const slides = document.querySelectorAll(".slide-item");
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.style.display = i === index ? "block" : "none";
+    });
+  }
+
+  function nextSlide() {
+    if (slides.length === 0) return;
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }
+
+  function prevSlide() {
+    if (slides.length === 0) return;
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  }
+
   if (slides.length > 0) {
     slides[0].style.display = "block";
-  }
-  document.getElementById("nextBtn").addEventListener("click", nextSlide);
-  document.getElementById("prevBtn").addEventListener("click", prevSlide);
-});
-// === Popup Katılım Formu ===
-const popup = document.getElementById("popup");
-const closeBtn = document.querySelector(".close");
-const onaylaBtn = document.getElementById("onayla");
-const eventName = document.getElementById("event-name");
-
-document.querySelectorAll(".katil-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const etkinlik = btn.getAttribute("data-event");
-    eventName.textContent = "Etkinlik: " + etkinlik;
-    popup.style.display = "flex";
-  });
-});
-
-closeBtn.addEventListener("click", () => {
-  popup.style.display = "none";
-});
-
-window.onclick = function(e) {
-  if (e.target === popup) popup.style.display = "none";
-};
-
-onaylaBtn.addEventListener("click", () => {
-  const ad = document.getElementById("ad").value.trim();
-  const soyad = document.getElementById("soyad").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const telefon = document.getElementById("telefon").value.trim();
-
-  if (!ad || !soyad || !email || !telefon) {
-    alert("Lütfen tüm alanları doldurun!");
-    return;
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    if (nextBtn) nextBtn.addEventListener("click", nextSlide);
+    if (prevBtn) prevBtn.addEventListener("click", prevSlide);
   }
 
-  alert(`${ad} ${soyad}, katılımınız başarıyla alındı! 🎉`);
-  popup.style.display = "none";
-});
-document.addEventListener("DOMContentLoaded", () => {
+  // === Popup Katılım Formu + Backend entegrasyonu ===
   const popup = document.getElementById("popup");
   const closeBtn = document.querySelector(".close");
   const onaylaBtn = document.getElementById("onayla");
-  const eventName = document.getElementById("event-name");
+  const eventNameEl = document.getElementById("event-name");
+  let seciliEtkinlik = null;
 
-  document.querySelectorAll(".katil-btn").forEach(btn => {
+  const KAYIT_API_URL = "http://localhost:8000/api/qr/kayit-olustur";
+
+  document.querySelectorAll(".katil-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const etkinlik = btn.getAttribute("data-event");
-      eventName.textContent = "Etkinlik: " + etkinlik;
-      popup.style.display = "flex";
+      seciliEtkinlik = btn.getAttribute("data-event");
+      eventNameEl.textContent = "Etkinlik: " + seciliEtkinlik;
+      if (popup) popup.style.display = "flex";
     });
   });
 
-  closeBtn.addEventListener("click", () => {
-    popup.style.display = "none";
-  });
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      popup.style.display = "none";
+    });
+  }
 
-  window.onclick = function(e) {
+  window.onclick = function (e) {
     if (e.target === popup) popup.style.display = "none";
   };
 
-  onaylaBtn.addEventListener("click", () => {
-    const ad = document.getElementById("ad").value.trim();
-    const soyad = document.getElementById("soyad").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const telefon = document.getElementById("telefon").value.trim();
+  if (onaylaBtn) {
+    onaylaBtn.addEventListener("click", async () => {
+      const ad = document.getElementById("ad").value.trim();
+      const soyad = document.getElementById("soyad").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const telefon = document.getElementById("telefon").value.trim();
 
-    if (!ad || !soyad || !email || !telefon) {
-      alert("Lütfen tüm alanları doldurun!");
-      return;
-    }
+      if (!ad || !soyad || !email || !telefon) {
+        alert("Lütfen tüm alanları doldurun!");
+        return;
+      }
 
-    alert(`${ad} ${soyad}, katılımınız başarıyla alındı! 🎉`);
-    popup.style.display = "none";
-  });
+      try {
+        const payload = {
+          first_name: ad,
+          last_name: soyad,
+          email: email,
+          phone: telefon,
+          event_name: seciliEtkinlik || (eventNameEl.textContent || "").replace("Etkinlik: ", ""),
+        };
+
+        const res = await fetch(KAYIT_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          alert(`${ad} ${soyad}, katılımınız başarıyla alındı ve puanınıza eklendi! 🎉`);
+          popup.style.display = "none";
+        } else {
+          const data = await res.json().catch(() => ({}));
+          alert("Katılım kaydedilirken hata oluştu: " + (data.detail || res.statusText));
+        }
+      } catch (err) {
+        console.error("Katılım isteği hatası:", err);
+        alert("Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+      }
+    });
+  }
 });

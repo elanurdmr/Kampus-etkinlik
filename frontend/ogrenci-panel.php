@@ -148,6 +148,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <a href="etkinlik-onerileri.php" class="action-btn">Öneriler</a>
       <a href="ilgi-alanlari.php" class="action-btn">İlgi Alanlarım</a>
       <a href="bildirimler.php" class="action-btn">Bildirimler</a>
+      <a href="arkadaslar.php" class="action-btn">Arkadaşlarım</a>
     </div>
   </div>
 </div>

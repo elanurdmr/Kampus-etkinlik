@@ -64,3 +64,4 @@ fi
 # Backend'i başlat
 python main.py
 
+

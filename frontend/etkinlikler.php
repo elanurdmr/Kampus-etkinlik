@@ -1,5 +1,9 @@
-<?php include "db.php"; ?>
-<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+<?php 
+include "db.php"; 
+require_once "kulup_etkinlikleri_mock.php";
+$currentPage = basename($_SERVER['PHP_SELF']); 
+$kulupEtkinlikleri = getKulupEtkinlikleriMock();
+?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -19,29 +23,16 @@
 
 
 <main class="etkinlikler">
-  <div class="event-card">
-    <h3>Yazılım Kulübü</h3>
-    <p><b>Etkinlik:</b> Kodlama Günü 2025</p>
-    <p><b>Tarih:</b> 12 Kasım 2025</p>
-    <p>Yapay zeka ve web geliştirme workshopları. Katılanlara sertifika verilecektir.</p>
-    <button class="katil-btn" data-event="Kodlama Günü 2025">Katıl</button>
-  </div>
-
-  <div class="event-card">
-    <h3>Psikoloji Kulübü</h3>
-    <p><b>Etkinlik:</b> Empati Semineri</p>
-    <p><b>Tarih:</b> 18 Kasım 2025</p>
-    <p>Empati becerilerini geliştirmeye yönelik interaktif oturumlar.</p>
-    <button class="katil-btn" data-event="Empati Semineri">Katıl</button>
-  </div>
-
-  <div class="event-card">
-    <h3>Fotoğrafçılık Kulübü</h3>
-    <p><b>Etkinlik:</b> Kampüs Kareleri</p>
-    <p><b>Tarih:</b> 22 Kasım 2025</p>
-    <p>Kampüs genelinde fotoğraf turu yapılacak. En iyi kare sergilenecek.</p>
-    <button class="katil-btn" data-event="Kampüs Kareleri">Katıl</button>
-  </div>
+  <?php foreach ($kulupEtkinlikleri as $etkinlik): ?>
+    <div class="event-card">
+      <h3><?php echo htmlspecialchars($etkinlik['kulup']); ?></h3>
+      <p><b>Etkinlik:</b> <?php echo htmlspecialchars($etkinlik['ad']); ?></p>
+      <p><b>Tarih:</b> <?php echo htmlspecialchars($etkinlik['tarih']); ?></p>
+      <p><?php echo htmlspecialchars($etkinlik['aciklama']); ?></p>
+      <p><b>Konum:</b> <?php echo htmlspecialchars($etkinlik['konum']); ?></p>
+      <button class="katil-btn" data-event="<?php echo htmlspecialchars($etkinlik['ad']); ?>">Katıl</button>
+    </div>
+  <?php endforeach; ?>
 </main>
 
 <!-- POPUP FORM -->

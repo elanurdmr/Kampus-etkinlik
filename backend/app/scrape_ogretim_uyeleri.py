@@ -136,3 +136,4 @@ if __name__ == "__main__":
         # Örnek verilerle doldur
         seed_dogus_ogretim_uyeleri()
 
+

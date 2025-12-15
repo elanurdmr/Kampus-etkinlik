@@ -90,3 +90,4 @@ def bildirim_olustur(bildirim: schemas.BildirimCreate, db: Session = Depends(get
     db.refresh(db_bildirim)
     return db_bildirim
 
+

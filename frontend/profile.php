@@ -218,22 +218,36 @@ if ($result->num_rows > 0) {
     </div>
 
     <div class="profile-card">
-      <h2>Hesap İşlemleri</h2>
+      <h2>Etkinlik Puanları & Seviye</h2>
       <div class="info-row">
-        <span class="info-label">Hesap Durumu:</span>
-        <span class="info-value" style="color: #28a745;">Aktif</span>
+        <span class="info-label">Toplam Puan:</span>
+        <span class="info-value" id="profilToplamPuan">-</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Kayıt Tarihi:</span>
-        <span class="info-value">
-          <?php 
-          if (isset($user['olusturma_tarihi'])) {
-            echo date('d.m.Y', strtotime($user['olusturma_tarihi']));
-          } else {
-            echo '-';
-          }
-          ?>
-        </span>
+        <span class="info-label">Seviye:</span>
+        <span class="info-value" id="profilSeviye">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Rozet:</span>
+        <span class="info-value" id="profilRozet">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Toplam Katılım:</span>
+        <span class="info-value" id="profilToplamKatilim">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Streak (Gün):</span>
+        <span class="info-value" id="profilStreak">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Son Katılım Tarihi:</span>
+        <span class="info-value" id="profilSonKatilim">-</span>
+      </div>
+      <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <strong>Son Etkinlikler:</strong>
+        <ul id="profilEtkinlikGecmisi" style="margin: 8px 0 0; padding-left: 18px; font-size: 0.9em; color: #555;">
+          <li>Henüz etkinlik katılımınız yok.</li>
+        </ul>
       </div>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
         <a href="logout.php" style="display: inline-block; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
@@ -245,6 +259,55 @@ if ($result->num_rows > 0) {
 </div>
 
 <?php include "footer.php"; ?>
+
+<script>
+const PUAN_API_BASE_URL = 'http://localhost:8000/api/qr';
+if (typeof window.kullaniciId === 'undefined') {
+  window.kullaniciId = <?php echo (int) $user_id; ?>;
+}
+
+async function yukleProfilPuanlari() {
+  try {
+    if (!window.kullaniciId || window.kullaniciId <= 0) return;
+
+    const res = await fetch(`${PUAN_API_BASE_URL}/kullanici/${window.kullaniciId}/istatistik`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    document.getElementById('profilToplamPuan').textContent = data.toplam_puan ?? 0;
+    document.getElementById('profilSeviye').textContent = data.seviye ?? 1;
+    document.getElementById('profilRozet').textContent = data.rozet || '-';
+    document.getElementById('profilToplamKatilim').textContent = data.toplam_katilim ?? 0;
+    document.getElementById('profilStreak').textContent = data.streak_gun ?? 0;
+    document.getElementById('profilSonKatilim').textContent = data.son_katilim_tarihi || '-';
+
+    const ul = document.getElementById('profilEtkinlikGecmisi');
+    ul.innerHTML = '';
+    if (data.gecmis && data.gecmis.length > 0) {
+      data.gecmis.forEach(item => {
+        const li = document.createElement('li');
+        const tarih = new Date(item.tarih).toLocaleString('tr-TR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        li.textContent = `${item.etkinlik_baslik} (+${item.puan} puan, ${tarih})`;
+        ul.appendChild(li);
+      });
+    } else {
+      const li = document.createElement('li');
+      li.textContent = 'Henüz etkinlik katılımınız yok.';
+      ul.appendChild(li);
+    }
+  } catch (e) {
+    console.error('Puan bilgisi yüklenirken hata:', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', yukleProfilPuanlari);
+</script>
 
 </body>
 </html>

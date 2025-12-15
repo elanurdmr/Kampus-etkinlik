@@ -143,3 +143,16 @@ INSERT INTO akademik_etkinlikler (baslik, aciklama, etkinlik_turu, baslangic_tar
 ('Kariyer Günleri Etkinliği', 'Şirket temsilcileri ile tanışma', 'etkinlik', DATE_ADD(NOW(), INTERVAL 5 DAY), DATE_ADD(NOW(), INTERVAL 5 DAY), 'Konferans Salonu'),
 ('Veritabanı Final Sınavı', 'Dönem sonu sınavı', 'sınav', DATE_ADD(NOW(), INTERVAL 14 DAY), DATE_ADD(NOW(), INTERVAL 14 DAY), 'B-101');
 
+-- Arkadaşlık İlişkileri Tablosu
+CREATE TABLE IF NOT EXISTS arkadasliklar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    gonderen_id INT NOT NULL,
+    alan_id INT NOT NULL,
+    durum ENUM('beklemede','kabul','red') DEFAULT 'beklemede',
+    olusturma_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+    guncellenme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (gonderen_id) REFERENCES ogrenciler(ogrenci_id) ON DELETE CASCADE,
+    FOREIGN KEY (alan_id) REFERENCES ogrenciler(ogrenci_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_cift (gonderen_id, alan_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

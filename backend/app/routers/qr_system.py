@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import secrets
 import hashlib
 import schemas
@@ -9,6 +9,92 @@ import models
 from database import get_db
 
 router = APIRouter()
+
+
+def _hesapla_seviye(toplam_puan: int) -> int:
+    """Toplam puana göre seviye hesaplar (her 50 puan bir seviye)."""
+    if toplam_puan < 0:
+        toplam_puan = 0
+    return 1 + (toplam_puan // 50)
+
+
+def _seviye_rozet(seviye: int) -> str:
+    """Seviyeye göre rozet adı döner."""
+    if seviye >= 5:
+        return "Kampüs Efsanesi"
+    if seviye >= 4:
+        return "Kampüs Lideri"
+    if seviye >= 3:
+        return "Aktif Katılımcı"
+    if seviye >= 2:
+        return "Yeni Katılımcı"
+    return "Yeni Başlayan"
+
+
+def puan_ekle_katilim(db: Session, kullanici_id: int, etkinlik_id: int, katilim_id: int) -> None:
+    """
+    Bir kulüp/etkinlik katılımı için puan ekler, seviye / streak günceller ve log kaydı oluşturur.
+    Not: Ödev / sınav gibi akademik notlara PUAN VERİLMEZ; sistem sadece
+    kulüp ve benzeri sosyal etkinlikler için kullanılacak.
+    """
+    etkinlik = db.query(models.AkademikEtkinlik).filter(models.AkademikEtkinlik.id == etkinlik_id).first()
+    if not etkinlik:
+        return
+
+    # Kulüp / sosyal etkinlik puanı: sabit 10 puan
+    # (ödev/sınav vb. için hiçbir zaman puan verilmez)
+    puan = 10
+
+    bugun = date.today()
+
+    durum = db.query(models.KullaniciPuanDurumu).filter(
+        models.KullaniciPuanDurumu.kullanici_id == kullanici_id
+    ).first()
+
+    if not durum:
+        durum = models.KullaniciPuanDurumu(
+            kullanici_id=kullanici_id,
+            toplam_puan=0,
+            seviye=1,
+            toplam_katilim=0,
+            streak_gun=0,
+            son_katilim_tarihi=None,
+        )
+        db.add(durum)
+        db.flush()
+
+    # Streak hesabı
+    if durum.son_katilim_tarihi is None:
+        streak = 1
+    else:
+        fark = (bugun - durum.son_katilim_tarihi).days
+        if fark == 0:
+            streak = durum.streak_gun  # aynı gün, streak değişmez
+        elif fark == 1:
+            streak = durum.streak_gun + 1
+        else:
+            streak = 1
+
+    toplam_puan = durum.toplam_puan + puan
+    toplam_katilim = durum.toplam_katilim + 1
+    seviye = _hesapla_seviye(toplam_puan)
+
+    durum.toplam_puan = toplam_puan
+    durum.toplam_katilim = toplam_katilim
+    durum.streak_gun = streak
+    durum.son_katilim_tarihi = bugun
+
+    # Log kaydı
+    aciklama = f"{etkinlik.baslik} etkinliğine katılım"
+    log = models.KatilimPuanLogu(
+        kullanici_id=kullanici_id,
+        etkinlik_id=etkinlik_id,
+        katilim_id=katilim_id,
+        puan=puan,
+        aciklama=aciklama,
+    )
+    db.add(log)
+    db.commit()
 
 def generate_qr_code(etkinlik_id: int, etkinlik_baslik: str) -> str:
     """QR kod için benzersiz token oluşturur"""
@@ -138,6 +224,12 @@ def katilim_olustur(katilim: schemas.KatilimCreate, db: Session = Depends(get_db
     db.add(db_katilim)
     db.commit()
     db.refresh(db_katilim)
+
+    # Puan sistemine işle
+    try:
+        puan_ekle_katilim(db, katilim.kullanici_id, katilim.etkinlik_id, db_katilim.id)
+    except Exception as e:
+        print(f"Puan ekleme hatası: {e}")
     
     return db_katilim
 
@@ -216,13 +308,24 @@ def kayit_olustur(data: dict, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(kullanici)
 
-    # 2. Etkinliği bul
+    # 2. Etkinliği bul veya oluştur
     etkinlik = db.query(models.AkademikEtkinlik).filter(
         models.AkademikEtkinlik.baslik == data["event_name"]
     ).first()
 
     if not etkinlik:
-        raise HTTPException(status_code=404, detail="Etkinlik bulunamadı")
+        etkinlik = models.AkademikEtkinlik(
+            baslik=data["event_name"],
+            aciklama="Etkinlikler sayfasından oluşturulan etkinlik",
+            etkinlik_turu="etkinlik",
+            baslangic_tarihi=datetime.now(),
+            bitis_tarihi=datetime.now(),
+            konum="Kampüs",
+            aktif=True,
+        )
+        db.add(etkinlik)
+        db.commit()
+        db.refresh(etkinlik)
 
     # 3. QR kod oluştur
     qr = models.QRKod(
@@ -245,9 +348,68 @@ def kayit_olustur(data: dict, db: Session = Depends(get_db)):
     db.add(katilim)
     db.commit()
 
+    # Puan sistemine işle
+    try:
+        puan_ekle_katilim(db, kullanici.id, etkinlik.id, katilim.id)
+    except Exception as e:
+        print(f"Puan ekleme hatası: {e}")
+    
     return {
         "status": "ok",
         "mesaj": "Katılım başarıyla oluşturuldu!",
         "qr_kod": qr.qr_kod
     }
+
+
+@router.get("/kullanici/{kullanici_id}/istatistik", response_model=schemas.KullaniciPuanDurumu)
+def kullanici_puan_istatistik(kullanici_id: int, db: Session = Depends(get_db)):
+    """Kullanıcının puan, seviye, rozet ve son katılım geçmişini döner."""
+    durum = db.query(models.KullaniciPuanDurumu).filter(
+        models.KullaniciPuanDurumu.kullanici_id == kullanici_id
+    ).first()
+
+    if not durum:
+        return schemas.KullaniciPuanDurumu(
+            toplam_puan=0,
+            seviye=1,
+            rozet=_seviye_rozet(1),
+            toplam_katilim=0,
+            streak_gun=0,
+            son_katilim_tarihi=None,
+            gecmis=[],
+        )
+
+    loglar = (
+        db.query(models.KatilimPuanLogu)
+        .filter(models.KatilimPuanLogu.kullanici_id == kullanici_id)
+        .order_by(models.KatilimPuanLogu.tarih.desc())
+        .limit(20)
+        .all()
+    )
+
+    gecmis = []
+    for log in loglar:
+        etkinlik = db.query(models.AkademikEtkinlik).filter(
+            models.AkademikEtkinlik.id == log.etkinlik_id
+        ).first()
+        gecmis.append(
+            schemas.KatilimPuanLogu(
+                id=log.id,
+                etkinlik_id=log.etkinlik_id,
+                etkinlik_baslik=etkinlik.baslik if etkinlik else "",
+                puan=log.puan,
+                aciklama=log.aciklama,
+                tarih=log.tarih,
+            )
+        )
+
+    return schemas.KullaniciPuanDurumu(
+        toplam_puan=durum.toplam_puan,
+        seviye=durum.seviye,
+        rozet=_seviye_rozet(durum.seviye),
+        toplam_katilim=durum.toplam_katilim,
+        streak_gun=durum.streak_gun,
+        son_katilim_tarihi=durum.son_katilim_tarihi,
+        gecmis=gecmis,
+    )
 
